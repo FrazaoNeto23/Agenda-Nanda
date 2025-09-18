@@ -1,63 +1,317 @@
+/* ===============================
+   RESET BÁSICO
+=============================== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+}
+
 body {
-  font-family: Arial, Helvetica, sans-serif;
-  background: #f5f5f5;
-  color: #222;
-  padding: 20px;
+  background-color: #f0f2f5;
+  color: #333;
+  font-size: 16px;
+  line-height: 1.6;
+  min-height: 100vh;
 }
-.container {
-  max-width: 900px;
-  margin: 0 auto;
+
+/* ===============================
+   FORMULÁRIO CENTRALIZADO
+=============================== */
+form {
+  max-width: 400px;
+  margin: 60px auto;
   background: #fff;
-  padding: 18px;
-  border-radius: 8px;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+  padding: 35px;
+  border-radius: 15px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
 }
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 12px;
+
+form:hover {
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
 }
-h1 { font-size: 20px; margin: 0 }
-form label {
-  display: block;
-  margin-top: 8px;
+
+form h2 {
+  text-align: center;
+  margin-bottom: 25px;
+  color: #2d7cff;
   font-weight: 600;
 }
-input[type=text],input[type=date],input[type=time],select,textarea {
+
+/* ===============================
+   INPUTS E SELECTS
+=============================== */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="date"],
+input[type="time"],
+select,
+textarea {
   width: 100%;
-  padding: 8px;
-  margin-top: 6px;
-  border-radius: 6px;
-  border: 1px solid #ddd;
+  padding: 12px 15px;
+  margin-bottom: 18px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  font-size: 15px;
+  transition: all 0.3s ease;
 }
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: #2d7cff;
+  box-shadow: 0 0 10px rgba(45, 124, 255, 0.3);
+  outline: none;
+}
+
+/* ===============================
+   BOTÕES PREMIUM COM ANIMAÇÕES
+=============================== */
 button {
-  padding: 10px 14px;
-  border-radius: 6px;
-  border: 0;
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 10px;
   cursor: pointer;
+  font-weight: 600;
+  font-size: 16px;
+  color: #fff;
+  background: linear-gradient(90deg, #2d7cff, #8b5cf6);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
 }
-.btn-primary { background: #2d7cff; color: #fff }
+
+/* Hover elevação + leve brilho */
+button:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+/* Clique */
+button:active {
+  transform: translateY(1px) scale(0.98);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Ripple effect */
+button::after {
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.3);
+  top: 0;
+  left: 0;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+button:focus::after,
+button:active::after {
+  opacity: 1;
+  transition: 0s;
+}
+
+/* ===============================
+   ANIMAÇÕES AUTOMÁTICAS PARA TODOS OS BOTÕES
+=============================== */
+
+/* Pulse suave ao passar o mouse */
+button:hover {
+  animation: pulse 1s infinite;
+}
+
+/* Bounce ao clicar */
+button:active {
+  animation: bounce 0.3s;
+}
+
+/* Keyframes pulse */
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.05);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Keyframes bounce */
+@keyframes bounce {
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(0.9);
+  }
+
+  70% {
+    transform: scale(1.05);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* ===============================
+   BOTÃO DE CADASTRO
+=============================== */
+button.cadastrar {
+  background: linear-gradient(90deg, #28a745, #20c997);
+  color: #fff;
+  font-weight: 700;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+}
+
+button.cadastrar:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+  animation: pulse 1s infinite;
+}
+
+button.cadastrar:active {
+  transform: translateY(1px) scale(0.98);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  animation: bounce 0.3s;
+}
+
+/* ===============================
+   CARDS / BOX COM ANIMAÇÃO
+=============================== */
+.card {
+  background: #fff;
+  padding: 25px;
+  margin-bottom: 20px;
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeInUp 0.6s forwards;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+}
+
+/* Animação fade in */
+@keyframes fadeInUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ===============================
+   TABELAS ESTILOS PREMIUM
+=============================== */
 .table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 14px;
+  margin-top: 20px;
+  border-radius: 12px;
+  overflow: hidden;
+  animation: fadeInUp 0.6s forwards;
 }
-.table th,.table td {
-  padding: 8px;
-  border-bottom: 1px solid #eee;
+
+.table th,
+.table td {
+  padding: 12px 15px;
   text-align: left;
+  border-bottom: 1px solid #eee;
+  transition: background 0.3s ease;
 }
-.actions a {
-  margin-right: 8px;
+
+.table th {
+  background-color: #eef3ff;
+}
+
+.table tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.table tr:hover {
+  background-color: #dbe7ff;
+}
+
+/* ===============================
+   STATUS COLORIDO
+=============================== */
+.status-pendente {
+  color: #0a66ff;
+  font-weight: 600;
+}
+
+.status-confirmado {
+  color: #10921a;
+  font-weight: 600;
+}
+
+.status-concluido {
+  color: #8b5cf6;
+  font-weight: 600;
+}
+
+.status-cancelado {
+  color: #c62828;
+  font-weight: 600;
+}
+
+/* ===============================
+   MENSAGENS / AVISOS
+=============================== */
+.notice {
+  background-color: #fff8e1;
+  padding: 12px 15px;
+  border-radius: 10px;
+  margin-bottom: 15px;
+  border-left: 5px solid #ffb400;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+}
+
+/* ===============================
+   LINKS
+=============================== */
+a {
   text-decoration: none;
+  color: #2d7cff;
+  transition: color 0.3s ease;
 }
-.status-agendado { color: #0a66ff }
-.status-confirmado { color: #10921a }
-.status-cancelado { color: #c62828 }
-.status-concluido { color: #8b5cf6 }
-.small-muted {
-  font-size: 12px;
-  color: #666;
-  margin-top: 6px;
+
+a:hover {
+  color: #1c5ed6;
+}
+
+/* ===============================
+   MISC
+=============================== */
+.actions a {
+  margin-right: 10px;
+  font-weight: 600;
+}
+
+.actions a:hover {
+  text-decoration: underline;
+}
+
+small {
+  color: #777;
+}
+
+select {
+  cursor: pointer;
 }

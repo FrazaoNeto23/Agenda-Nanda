@@ -1,0 +1,8 @@
+Instruções Rápidas:
+1) Importe o arquivo `banco_de_dados.sql` no seu MySQL (phpMyAdmin ou CLI).
+2) Ajuste credenciais em config.php se necessário.
+3) Coloque os arquivos no servidor (ex: htdocs/agenda_v4/).
+4) Acesse `register.php` para criar clientes. Para tornar um usuário 'dono', atualize o campo `tipo` no banco:
+   UPDATE users SET tipo='dono' WHERE email='seu-email@exemplo.com';
+5) Há um exemplo de serviços já inseridos no SQL. Você pode editar pelo painel 'Gerenciar Serviços' (apenas para dona).
+6) Segurança: esse é um sistema funcional e simples. Em produção, adicione proteção CSRF, validação mais forte e HTTPS.
