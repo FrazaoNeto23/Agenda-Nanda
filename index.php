@@ -11,7 +11,7 @@ $appointments = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <head>
     <meta charset="UTF-8">
     <title>Agenda Digital - Manicure</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="css/style.css">
 </head>
 
 <body>
@@ -22,9 +22,6 @@ $appointments = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <h1>Agenda Digital</h1>
                 <p class="note">Gerencie seus horários de manicure</p>
             </div>
-            <!-- Botão alternar tema -->
-            <button class="btn" id="themeToggle" style="margin-left:auto;" onclick="toggleDarkMode()">🌙 Alternar
-                Tema</button>
         </div>
 
         <h3>Novo Agendamento</h3>
@@ -33,7 +30,18 @@ $appointments = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <input class="input" type="text" name="client" placeholder="Cliente" required>
                 <input class="input" type="date" name="date" required>
                 <input class="input" type="time" name="time" required>
-                <input class="input" type="text" name="service" placeholder="Serviço" required>
+
+                <!-- serviços pré-definidos -->
+                <select class="input" name="service" required>
+                    <option value="">Selecione o serviço</option>
+                    <option value="Manicure Simples">Manicure Simples</option>
+                    <option value="Pedicure">Pedicure</option>
+                    <option value="Unha em Gel">Unha em Gel</option>
+                    <option value="Unha de Fibra">Unha de Fibra</option>
+                    <option value="Spa das Mãos">Spa das Mãos</option>
+                    <option value="Spa dos Pés">Spa dos Pés</option>
+                </select>
+
                 <button class="btn" type="submit">Adicionar</button>
             </div>
         </form>
@@ -62,32 +70,6 @@ $appointments = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <?php endforeach; ?>
         </table>
     </div>
-
-    <script>
-        function toggleDarkMode() {
-            const body = document.body;
-            const button = document.getElementById("themeToggle");
-
-            body.classList.toggle("dark-mode");
-
-            if (body.classList.contains("dark-mode")) {
-                localStorage.setItem("theme", "dark");
-                button.textContent = "☀️ Alternar Tema";
-            } else {
-                localStorage.setItem("theme", "light");
-                button.textContent = "🌙 Alternar Tema";
-            }
-        }
-
-        // ao carregar, mantém a preferência e ajusta o ícone
-        window.onload = function () {
-            const button = document.getElementById("themeToggle");
-            if (localStorage.getItem("theme") === "dark") {
-                document.body.classList.add("dark-mode");
-                button.textContent = "☀️ Alternar Tema";
-            }
-        }
-    </script>
 </body>
 
 </html>
