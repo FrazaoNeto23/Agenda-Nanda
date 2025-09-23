@@ -1,0 +1,92 @@
+:root {
+    --main: #ff5e9e;
+    --muted: #f8f4f6;
+    --accent: #ffffff;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: linear-gradient(180deg, var(--muted), #fff);
+    padding: 20px;
+}
+
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+    background: var(--accent);
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.07);
+    padding: 20px;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    gap: 12px
+}
+
+.logo {
+    width: 64px;
+    height: 64px;
+    border-radius: 12px;
+    background: var(--main);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-weight: 700;
+    font-size: 26px
+}
+
+h1 {
+    margin: 0;
+    color: #333
+}
+
+.form-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 12px
+}
+
+.input,
+select,
+textarea {
+    padding: 8px;
+    border: 1px solid #e6e6e6;
+    border-radius: 8px;
+    flex: 1;
+    min-width: 150px
+}
+
+.btn {
+    background: var(--main);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 18px
+}
+
+.table th,
+.table td {
+    padding: 8px;
+    border-bottom: 1px solid #f0f0f0;
+    text-align: left
+}
+
+.actions a {
+    margin-right: 6px
+}
+
+.note {
+    font-size: 0.9rem;
+    color: #666
+}

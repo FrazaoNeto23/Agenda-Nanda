@@ -1,0 +1,17 @@
+
+CREATE DATABASE IF NOT EXISTS agenda_manicure CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE agenda_manicure;
+
+CREATE TABLE IF NOT EXISTS appointments (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  client_name VARCHAR(150) NOT NULL,
+  phone VARCHAR(30) NULL,
+  service VARCHAR(100) NOT NULL,
+  date DATE NOT NULL,
+  time TIME NOT NULL,
+  notes TEXT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+
+  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
