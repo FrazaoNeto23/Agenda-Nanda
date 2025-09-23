@@ -1,206 +1,221 @@
-/* styles.css - tema manicure moderno */
+/* ============================= */
+/* Tema moderno para agenda      */
+/* ============================= */
 :root {
     --primary: #ff4f87;
-    --primary-dark: #e13f73;
-    --bg-light: #faf9fb;
-    --bg-card: #ffffff;
+    --primary-dark: #d93a6a;
+    --secondary: #ffa3c2;
+    --bg-light: #fdf7fa;
+    --bg-card: #fff;
     --text-dark: #333;
     --text-muted: #777;
     --radius: 16px;
-    --shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    --shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+    --transition: 0.25s ease;
 }
 
+/* ====== Global ====== */
 body {
     font-family: 'Poppins', Arial, sans-serif;
     background: var(--bg-light);
     margin: 0;
-    padding: 20px;
+    padding: 0;
     color: var(--text-dark);
 }
 
-/* container geral */
+a {
+    text-decoration: none;
+}
+
+/* ====== Header ====== */
+.header {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: white;
+    padding: 32px 20px;
+    text-align: center;
+    border-radius: 0 0 24px 24px;
+    box-shadow: var(--shadow);
+}
+
+.header .logo {
+    font-size: 3rem;
+    margin-bottom: 12px;
+}
+
+.header h1 {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+.header .note {
+    margin-top: 6px;
+    font-size: 1rem;
+    color: #fff9;
+}
+
+/* ====== Container ====== */
 .container {
     max-width: 960px;
-    margin: 0 auto;
+    margin: -30px auto 40px auto;
+    padding: 20px;
+}
+
+/* ====== Cards de Agendamento ====== */
+.card {
     background: var(--bg-card);
     border-radius: var(--radius);
     box-shadow: var(--shadow);
-    padding: 24px;
+    padding: 20px;
+    margin-bottom: 20px;
+    transition: transform var(--transition), box-shadow var(--transition);
+    position: relative;
 }
 
-/* header */
-.header {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    border-bottom: 2px solid #f2f2f2;
-    padding-bottom: 16px;
+.card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.12);
 }
 
-.logo {
-    width: 72px;
-    height: 72px;
-    border-radius: 50%;
-    background: var(--primary);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #fff;
-    font-weight: 700;
-    font-size: 28px;
-    box-shadow: var(--shadow);
-}
-
-h1 {
-    margin: 0;
+.card h3 {
+    margin: 0 0 8px;
     color: var(--primary-dark);
-    font-size: 1.8rem;
+    font-size: 1.3rem;
 }
 
-.note {
-    font-size: 0.95rem;
+.card p {
+    margin: 4px 0;
     color: var(--text-muted);
+    font-size: 0.95rem;
 }
 
-h3 {
-    margin-top: 28px;
-    font-size: 1.4rem;
-    color: var(--primary-dark);
+/* Ícones nos cards */
+.card p::before {
+    content: "• ";
+    color: var(--primary);
+    font-weight: bold;
 }
 
-/* formulário */
-.form-row {
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
+/* Ações */
+.actions {
     margin-top: 12px;
 }
 
-.input,
-select,
-textarea,
-.form-control {
-    padding: 10px 12px;
-    border: 1px solid #e0e0e0;
+.actions a {
+    display: inline-block;
+    margin-right: 10px;
+    padding: 6px 14px;
     border-radius: 10px;
-    flex: 1;
-    min-width: 180px;
-    font-size: 0.95rem;
-    transition: border-color 0.2s;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: var(--transition);
+}
+
+.actions a.edit {
+    background: #fff0f6;
+    color: var(--primary-dark);
+}
+
+.actions a.delete {
+    background: #ffe6e9;
+    color: #b71c1c;
+}
+
+.actions a:hover {
+    opacity: 0.85;
+}
+
+/* ====== Botão flutuante adicionar ====== */
+.add-btn {
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    background: var(--primary);
+    color: #fff;
+    padding: 16px 22px;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 1rem;
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+}
+
+.add-btn:hover {
+    background: var(--primary-dark);
+    transform: scale(1.05);
+}
+
+/* ====== Formulários ====== */
+form {
+    background: var(--bg-card);
+    padding: 28px;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    max-width: 600px;
+    margin: 20px auto;
+    transition: var(--transition);
+}
+
+.input,
+select {
+    padding: 14px 16px;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    font-size: 1rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .input:focus,
-select:focus,
-textarea:focus,
-.form-control:focus {
-    outline: none;
+select:focus {
     border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(255, 79, 135, 0.15);
+    box-shadow: 0 0 0 4px rgba(255, 79, 135, 0.15);
+    outline: none;
 }
 
 .btn {
     background: var(--primary);
     color: white;
-    padding: 10px 16px;
-    border-radius: 10px;
+    padding: 14px 20px;
+    border-radius: 12px;
     border: none;
     cursor: pointer;
     font-size: 1rem;
-    font-weight: 500;
-    transition: background 0.3s, transform 0.1s;
+    font-weight: 600;
+    transition: var(--transition);
 }
 
 .btn:hover {
     background: var(--primary-dark);
+    transform: scale(1.03);
 }
 
 .btn:active {
     transform: scale(0.97);
 }
 
-/* tabela */
-.table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-    background: var(--bg-card);
-    border-radius: var(--radius);
-    overflow: hidden;
-    box-shadow: var(--shadow);
-}
-
-.table th,
-.table td {
-    padding: 14px;
-    border-bottom: 1px solid #f2f2f2;
-    text-align: left;
-    font-size: 0.95rem;
-}
-
-.table th {
-    background: #fff0f6;
-    color: var(--primary-dark);
-    font-weight: 600;
-}
-
-.table tr:hover td {
-    background: #fff7fb;
-}
-
-/* ações */
-.actions a {
-    margin-right: 8px;
-    color: var(--primary-dark);
-    text-decoration: none;
-    font-weight: 500;
-}
-
-.actions a:hover {
-    text-decoration: underline;
-}
-
-/* ================= */
-/* Tela de edição    */
-/* ================= */
-.edit-container {
-    max-width: 600px;
-    margin: 40px auto;
-    background: var(--bg-card);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    padding: 24px;
-    animation: fadeIn 0.4s ease;
-}
-
-.edit-form {
-    margin-top: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-}
-
+/* ====== Link voltar ====== */
 .back-link {
-    display: inline-block;
-    margin-top: 20px;
-    text-decoration: none;
+    display: block;
+    margin: 20px auto;
+    text-align: center;
     color: var(--primary-dark);
     font-weight: 500;
-    transition: color 0.3s;
+    transition: var(--transition);
 }
 
 .back-link:hover {
+    text-decoration: underline;
     color: var(--primary);
 }
 
-/* animação */
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
+/* ====== Responsividade ====== */
+@media (max-width: 640px) {
 
-    to {
-        opacity: 1;
-        transform: translateY(0);
+    .form-row,
+    .card {
+        flex-direction: column;
     }
 }

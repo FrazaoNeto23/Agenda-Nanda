@@ -37,43 +37,38 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 </head>
 
 <body>
-    <div class="edit-container">
-        <div class="header">
-            <div class="logo">💅</div>
-            <div>
-                <h1>Editar Agendamento</h1>
-                <p class="note">Atualize os dados do cliente</p>
-            </div>
-        </div>
-
-        <form method="POST" class="edit-form">
-            <div class="form-row">
-                <input class="input" type="text" name="client" value="<?= htmlspecialchars($appointment['client']) ?>"
-                    required>
-                <input class="input" type="date" name="date" value="<?= $appointment['date'] ?>" required>
-                <input class="input" type="time" name="time" value="<?= $appointment['time'] ?>" required>
-
-                <!-- select com serviços -->
-                <select class="input" name="service" required>
-                    <option value="Manicure Simples" <?= $appointment['service'] == "Manicure Simples" ? "selected" : "" ?>>Manicure Simples</option>
-                    <option value="Pedicure" <?= $appointment['service'] == "Pedicure" ? "selected" : "" ?>>Pedicure
-                    </option>
-                    <option value="Unha em Gel" <?= $appointment['service'] == "Unha em Gel" ? "selected" : "" ?>>Unha em
-                        Gel</option>
-                    <option value="Unha de Fibra" <?= $appointment['service'] == "Unha de Fibra" ? "selected" : "" ?>>Unha
-                        de Fibra</option>
-                    <option value="Spa das Mãos" <?= $appointment['service'] == "Spa das Mãos" ? "selected" : "" ?>>Spa das
-                        Mãos</option>
-                    <option value="Spa dos Pés" <?= $appointment['service'] == "Spa dos Pés" ? "selected" : "" ?>>Spa dos
-                        Pés</option>
-                </select>
-
-                <button class="btn" type="submit">Salvar Alterações</button>
-            </div>
-        </form>
-
-        <a href="index.php" class="back-link">⬅ Voltar para Agenda</a>
+    <!-- Header -->
+    <div class="header">
+        <div class="logo">💅</div>
+        <h1>Editar Agendamento</h1>
+        <p class="note">Atualize os dados do cliente</p>
     </div>
+
+    <!-- Formulário de edição -->
+    <form method="POST">
+        <input class="input" type="text" name="client" value="<?= htmlspecialchars($appointment['client']) ?>" required>
+        <input class="input" type="date" name="date" value="<?= $appointment['date'] ?>" required>
+        <input class="input" type="time" name="time" value="<?= $appointment['time'] ?>" required>
+
+        <select class="input" name="service" required>
+            <option value="Manicure Simples" <?= $appointment['service'] == "Manicure Simples" ? "selected" : "" ?>>
+                Manicure Simples</option>
+            <option value="Pedicure" <?= $appointment['service'] == "Pedicure" ? "selected" : "" ?>>Pedicure</option>
+            <option value="Unha em Gel" <?= $appointment['service'] == "Unha em Gel" ? "selected" : "" ?>>Unha em Gel
+            </option>
+            <option value="Unha de Fibra" <?= $appointment['service'] == "Unha de Fibra" ? "selected" : "" ?>>Unha de Fibra
+            </option>
+            <option value="Spa das Mãos" <?= $appointment['service'] == "Spa das Mãos" ? "selected" : "" ?>>Spa das Mãos
+            </option>
+            <option value="Spa dos Pés" <?= $appointment['service'] == "Spa dos Pés" ? "selected" : "" ?>>Spa dos Pés
+            </option>
+        </select>
+
+        <button class="btn" type="submit">Salvar Alterações</button>
+    </form>
+
+    <!-- Link voltar -->
+    <a href="index.php" class="back-link">⬅ Voltar para Agenda</a>
 </body>
 
 </html>
