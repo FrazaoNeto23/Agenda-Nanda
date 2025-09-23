@@ -33,11 +33,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <head>
     <meta charset="UTF-8">
     <title>Editar Agendamento</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="css/style.css">
 </head>
 
 <body>
-    <div class="container">
+    <div class="edit-container">
         <div class="header">
             <div class="logo">💅</div>
             <div>
@@ -46,7 +46,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             </div>
         </div>
 
-        <form method="POST">
+        <form method="POST" class="edit-form">
             <div class="form-row">
                 <input class="input" type="text" name="client" value="<?= htmlspecialchars($appointment['client']) ?>"
                     required>
@@ -71,7 +71,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 <button class="btn" type="submit">Salvar Alterações</button>
             </div>
         </form>
-        <p><a href="index.php" class="btn">⬅ Voltar</a></p>
+
+        <a href="index.php" class="back-link">⬅ Voltar para Agenda</a>
     </div>
 </body>
 

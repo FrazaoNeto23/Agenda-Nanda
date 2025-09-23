@@ -19,8 +19,8 @@ $appointments = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <div class="header">
             <div class="logo">💅</div>
             <div>
-                <h1>Agenda Digital</h1>
-                <p class="note">Gerencie seus horários de manicure</p>
+                <h1>SISTER´S NAIL</h1>
+                <p class="note">Agende seu horário</p>
             </div>
         </div>
 

@@ -1,25 +1,13 @@
-/* styles.css - tema manicure moderno com modo claro/escuro */
+/* styles.css - tema manicure moderno */
 :root {
     --primary: #ff4f87;
     --primary-dark: #e13f73;
-
-    /* Cores do tema claro */
     --bg-light: #faf9fb;
     --bg-card: #ffffff;
     --text-dark: #333;
     --text-muted: #777;
-    --table-header: #fff0f6;
-    --table-hover: #fff7fb;
-}
-
-body.dark-mode {
-    /* Cores do tema escuro */
-    --bg-light: #1e1e2e;
-    --bg-card: #2a2a3c;
-    --text-dark: #f0f0f0;
-    --text-muted: #aaa;
-    --table-header: #3b2b36;
-    --table-hover: #2f2430;
+    --radius: 16px;
+    --shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
 }
 
 body {
@@ -28,29 +16,25 @@ body {
     margin: 0;
     padding: 20px;
     color: var(--text-dark);
-    transition: background 0.3s, color 0.3s;
 }
 
+/* container geral */
 .container {
     max-width: 960px;
     margin: 0 auto;
     background: var(--bg-card);
-    border-radius: 16px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
     padding: 24px;
-    transition: background 0.3s;
 }
 
+/* header */
 .header {
     display: flex;
     align-items: center;
     gap: 16px;
     border-bottom: 2px solid #f2f2f2;
     padding-bottom: 16px;
-}
-
-body.dark-mode .header {
-    border-bottom-color: #3b3b4f;
 }
 
 .logo {
@@ -64,7 +48,7 @@ body.dark-mode .header {
     color: #fff;
     font-weight: 700;
     font-size: 28px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    box-shadow: var(--shadow);
 }
 
 h1 {
@@ -84,6 +68,7 @@ h3 {
     color: var(--primary-dark);
 }
 
+/* formulário */
 .form-row {
     display: flex;
     gap: 12px;
@@ -101,9 +86,7 @@ textarea,
     flex: 1;
     min-width: 180px;
     font-size: 0.95rem;
-    transition: border-color 0.2s, background 0.3s, color 0.3s;
-    background: var(--bg-card);
-    color: var(--text-dark);
+    transition: border-color 0.2s;
 }
 
 .input:focus,
@@ -135,15 +118,15 @@ textarea:focus,
     transform: scale(0.97);
 }
 
+/* tabela */
 .table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
     background: var(--bg-card);
-    border-radius: 16px;
+    border-radius: var(--radius);
     overflow: hidden;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-    transition: background 0.3s;
+    box-shadow: var(--shadow);
 }
 
 .table th,
@@ -152,24 +135,19 @@ textarea:focus,
     border-bottom: 1px solid #f2f2f2;
     text-align: left;
     font-size: 0.95rem;
-    transition: background 0.3s, color 0.3s;
-}
-
-body.dark-mode .table th,
-body.dark-mode .table td {
-    border-bottom-color: #3b3b4f;
 }
 
 .table th {
-    background: var(--table-header);
+    background: #fff0f6;
     color: var(--primary-dark);
     font-weight: 600;
 }
 
 .table tr:hover td {
-    background: var(--table-hover);
+    background: #fff7fb;
 }
 
+/* ações */
 .actions a {
     margin-right: 8px;
     color: var(--primary-dark);
@@ -179,4 +157,50 @@ body.dark-mode .table td {
 
 .actions a:hover {
     text-decoration: underline;
+}
+
+/* ================= */
+/* Tela de edição    */
+/* ================= */
+.edit-container {
+    max-width: 600px;
+    margin: 40px auto;
+    background: var(--bg-card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 24px;
+    animation: fadeIn 0.4s ease;
+}
+
+.edit-form {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.back-link {
+    display: inline-block;
+    margin-top: 20px;
+    text-decoration: none;
+    color: var(--primary-dark);
+    font-weight: 500;
+    transition: color 0.3s;
+}
+
+.back-link:hover {
+    color: var(--primary);
+}
+
+/* animação */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
