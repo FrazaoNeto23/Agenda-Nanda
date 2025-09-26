@@ -1,26 +1,20 @@
 <?php
 session_start();
 
-$host = 'localhost';
-$db   = 'agenda_manicure';
-$user = 'root';
-$pass = '';
-$charset = 'utf8mb4';
-
-$dsn = "mysql:host=$host;dbname=$db;charset=$charset";
-$options = [
-    PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
-    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-];
+$host = "localhost:3307";
+$dbname = "agenda_manicure";
+$user = "root";
+$pass = ""; // coloque sua senha do MySQL se tiver
 
 try {
-     $pdo = new PDO($dsn, $user, $pass, $options);
-} catch (\PDOException $e) {
-     throw new \PDOException($e->getMessage(), (int)$e->getCode());
+    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $user, $pass);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch(PDOException $e) {
+    die("Erro ao conectar: " . $e->getMessage());
 }
 
 function checkLogin() {
-    if(!isset($_SESSION['user_id'])) {
+    if (!isset($_SESSION['user_id'])) {
         header("Location: login.php");
         exit;
     }

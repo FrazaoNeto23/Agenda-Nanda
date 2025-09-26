@@ -1,6 +1,5 @@
 <?php
-require 'config.php';
-session_unset();
+session_start();
 session_destroy();
 header("Location: login.php");
 exit;
