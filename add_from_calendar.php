@@ -2,31 +2,26 @@
 require 'config.php';
 checkLogin();
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $service = $_POST['service'] ?? '';
-    $date = $_POST['date'] ?? '';
-    $time = $_POST['time'] ?? '';
-    $end_time = $_POST['end_time'] ?? '';
+$user_id = $_SESSION['user_id'];
+$service_id = $_POST['service_id'] ?? null;
+$date = $_POST['date'] ?? null;
+$time = $_POST['time'] ?? null;
+$end_time = $_POST['end_time'] ?? null;
 
-    if (empty($service) || empty($date) || empty($time) || empty($end_time)) {
-        echo json_encode(['status' => 'error', 'msg' => 'Dados incompletos']);
-        exit;
-    }
-
-    $user_id = $_SESSION['user_id'];
-
-    $stmt = $pdo->prepare("SELECT COUNT(*) FROM events WHERE date=? AND time=?");
-    $stmt->execute([$date, $time]);
-    if ($stmt->fetchColumn() > 0) {
-        echo json_encode(['status' => 'error', 'msg' => 'Horário já agendado']);
-        exit;
-    }
-
-    $stmt = $pdo->prepare("INSERT INTO events (user_id, service, date, time, end_time, status) VALUES (?,?,?,?,?,?)");
-    $stmt->execute([$user_id, $service, $date, $time, $end_time, 'agendado']);
-
-    echo json_encode(['status' => 'success', 'msg' => 'Agendamento realizado']);
+if (!$service_id || !$date || !$time || !$end_time) {
+    echo json_encode(['status' => 'error', 'msg' => 'Todos os campos são obrigatórios']);
     exit;
 }
 
-echo json_encode(['status' => 'error', 'msg' => 'Método inválido']);
+$start = $date . ' ' . $time;
+$end = $date . ' ' . $end_time;
+
+$stmt = $pdo->prepare("SELECT name FROM services WHERE id=?");
+$stmt->execute([$service_id]);
+$service = $stmt->fetch();
+$title = $service['name'] ?? 'Serviço';
+
+$stmt = $pdo->prepare("INSERT INTO events (user_id, service_id, title, start, end) VALUES (?,?,?,?,?)");
+$stmt->execute([$user_id, $service_id, $title, $start, $end]);
+
+echo json_encode(['status' => 'success']);

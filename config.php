@@ -2,15 +2,20 @@
 session_start();
 
 $host = "localhost:3307";
-$dbname = "agenda_manicure";
+$db = "agenda_manicure";
 $user = "root";
-$pass = ""; // ajuste se tiver senha
+$pass = ""; // ajuste se usar senha no XAMPP
 
 try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $user, $pass);
+    $pdo = new PDO("mysql:host=$host;dbname=$db;charset=utf8", $user, $pass);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 } catch (PDOException $e) {
-    die("Erro na conexão: " . $e->getMessage());
+    die("Erro ao conectar: ".$e->getMessage());
 }
 
-require_once "functions.php";
+function checkLogin(){
+    if(!isset($_SESSION['user_id'])){
+        header("Location: login.php");
+        exit;
+    }
+}

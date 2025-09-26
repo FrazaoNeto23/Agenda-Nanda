@@ -1,63 +1,67 @@
 document.addEventListener('DOMContentLoaded', function () {
   let calendarEl = document.getElementById('calendar');
+  let modal = document.getElementById('modal-agenda');
+  let closeModal = modal ? modal.querySelector('.close') : null;
+  let formAgenda = document.getElementById('form-agenda');
+  let selectService = document.getElementById('agenda-service');
+  let inputDate = document.getElementById('agenda-date');
+
+  if (selectService) {
+    fetch('get_services.php')
+      .then(res => res.json())
+      .then(data => {
+        selectService.innerHTML = data.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
+      });
+  }
 
   let calendar = new FullCalendar.Calendar(calendarEl, {
     initialView: 'dayGridMonth',
-    locale: 'pt-br',
     selectable: true,
     editable: true,
-    eventResizableFromStart: true,
-    headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridDay' },
+    height: 'auto',
     events: 'get_events.php',
-
+    eventClassNames: function (arg) {
+      return arg.event.extendedProps.status === 'atendido' ? ['event-done'] : ['event-agendado'];
+    },
     select: function (info) {
-      fetch('get_services.php')
-        .then(res => res.json())
-        .then(services => {
-          let serviceOptions = services.map(s => `${s.id}: ${s.name}`).join("\n");
-          let serviceId = prompt(`Escolha um serviço pelo número:\n${serviceOptions}`);
-          let selectedService = services.find(s => s.id == serviceId);
-          if (!selectedService) { alert("Serviço inválido!"); return; }
-
-          let start = info.start, end = info.end;
-          let date = start.toISOString().split('T')[0];
-          let time = start.toTimeString().split(' ')[0].substring(0, 5);
-          let end_time = end.toTimeString().split(' ')[0].substring(0, 5);
-
-          fetch('add_from_calendar.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: `service=${encodeURIComponent(selectedService.name)}&date=${date}&time=${time}&end_time=${end_time}`
-          }).then(res => res.json()).then(() => calendar.refetchEvents());
-        });
+      if (modal) {
+        inputDate.value = info.startStr;
+        modal.style.display = 'block';
+      }
     },
-
-    eventDrop: function (info) {
-      fetch('move_event.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: info.event.id, date: info.event.start.toISOString().split('T')[0], time: info.event.start.toTimeString().substring(0, 5) })
-      }).then(res => res.json()).then(() => calendar.refetchEvents());
-    },
-
-    eventResize: function (info) {
-      fetch('resize_event.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: info.event.id, end_time: info.event.end.toTimeString().substring(0, 5) })
-      }).then(res => res.json()).then(() => calendar.refetchEvents());
-    },
-
     eventClick: function (info) {
-      let id = info.event.id;
-      let currentColor = info.event.backgroundColor;
-      let newStatus = (currentColor === '#28a745') ? 'agendado' : 'atendido';
-      if (confirm(`Deseja marcar como ${newStatus}?`)) {
-        fetch('update_status.php', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: `id=${id}&status=${newStatus}` })
-          .then(res => res.json()).then(() => calendar.refetchEvents());
+      if (confirm("Deseja marcar este agendamento como atendido?")) {
+        fetch('update_status.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: `id=${info.event.id}&status=atendido`
+        }).then(() => calendar.refetchEvents());
       }
     }
   });
 
   calendar.render();
+
+  if (closeModal) {
+    closeModal.onclick = function () { modal.style.display = 'none'; }
+    window.onclick = function (event) { if (event.target == modal) modal.style.display = 'none'; }
+  }
+
+  if (formAgenda) {
+    formAgenda.addEventListener('submit', function (e) {
+      e.preventDefault();
+      fetch('add_from_calendar.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `service_id=${selectService.value}&date=${inputDate.value}&time=${document.getElementById('agenda-time').value}&end_time=${document.getElementById('agenda-end-time').value}`
+      }).then(res => res.json())
+        .then(resp => {
+          if (resp.status === 'success') {
+            alert('Agendamento realizado!');
+            calendar.refetchEvents();
+            modal.style.display = 'none';
+          } else { alert(resp.msg); }
+        });
+    });
+  }
 });

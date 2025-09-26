@@ -1,18 +1,13 @@
 <?php
 require 'config.php';
-checkLogin();
 
-if (!isDono()) {
-    die("Acesso negado.");
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $id = $_POST['id'];
+    $date = $_POST['date'];
+    $time = $_POST['time'];
+    $end_time = $_POST['end_time'];
+
+    $stmt = $pdo->prepare("UPDATE events SET date=?,time=?,end_time=? WHERE id=?");
+    $stmt->execute([$date, $time, $end_time, $id]);
+    echo json_encode(['status' => 'success']);
 }
-
-$data = json_decode(file_get_contents("php://input"), true);
-
-$id = $data['id'];
-$newDate = $data['date'];
-$newTime = $data['time'];
-
-$stmt = $pdo->prepare("UPDATE appointments SET date=?, time=? WHERE id=?");
-$stmt->execute([$newDate, $newTime, $id]);
-
-echo json_encode(["success" => true]);
