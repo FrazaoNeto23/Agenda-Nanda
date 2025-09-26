@@ -1,0 +1,158 @@
+/* styles.css - tema manicure moderno e profissional */
+:root {
+  --primary: #ff4f87;
+  --primary-dark: #e13f73;
+  --bg-light: #f9f9fb;
+  --bg-card: #ffffff;
+  --text-dark: #333;
+  --text-muted: #777;
+  --radius: 12px;
+  --shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+  --gradient: linear-gradient(135deg, #ff9ccf, #ff4f87);
+}
+
+body {
+  font-family: 'Poppins', Arial, sans-serif;
+  background: var(--bg-light);
+  margin: 0;
+  padding: 20px;
+  color: var(--text-dark);
+}
+
+.container {
+  max-width: 1000px;
+  margin: 0 auto;
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 30px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  border-bottom: 2px solid #eee;
+  padding-bottom: 20px;
+}
+
+.logo {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: var(--gradient);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-weight: 700;
+  font-size: 28px;
+  box-shadow: var(--shadow);
+}
+
+h1 {
+  margin: 0;
+  color: var(--primary-dark);
+  font-size: 2rem;
+}
+
+.note {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  margin-bottom: 15px;
+}
+
+h3 {
+  margin-top: 30px;
+  font-size: 1.5rem;
+  color: var(--primary-dark);
+}
+
+.form-row {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+  margin-top: 15px;
+}
+
+.input,
+select,
+textarea,
+.form-control {
+  padding: 12px 15px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  flex: 1;
+  min-width: 180px;
+  font-size: 0.95rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.input:focus,
+select:focus,
+textarea:focus,
+.form-control:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(255, 79, 135, 0.15);
+}
+
+.btn {
+  background: var(--gradient);
+  color: white;
+  padding: 12px 20px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: background 0.3s, transform 0.1s, box-shadow 0.2s;
+}
+
+.btn:hover {
+  background: var(--primary-dark);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+}
+
+.btn:active {
+  transform: scale(0.97);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+
+.table th,
+.table td {
+  padding: 14px;
+  border-bottom: 1px solid #f2f2f2;
+  text-align: left;
+  font-size: 0.95rem;
+}
+
+.table th {
+  background: #fff0f6;
+  color: var(--primary-dark);
+  font-weight: 600;
+}
+
+.table tr:hover td {
+  background: #fff7fb;
+}
+
+.actions a {
+  margin-right: 8px;
+  color: var(--primary-dark);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.actions a:hover {
+  text-decoration: underline;
+}

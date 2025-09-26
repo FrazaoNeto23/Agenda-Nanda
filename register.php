@@ -2,53 +2,24 @@
 require 'config.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $nome = trim($_POST['nome']);
-    $email = trim($_POST['email']);
-    $senha = $_POST['senha'];
-    $senha2 = $_POST['senha2'];
+  $name = $_POST['name'];
+  $email = $_POST['email'];
+  $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
+  $role = $_POST['role']; // cliente ou dono
 
-    if ($senha !== $senha2) {
-        $erro = "As senhas não conferem!";
-    } else {
-        $stmt = $pdo->prepare("SELECT id FROM users WHERE email=?");
-        $stmt->execute([$email]);
-        if ($stmt->fetch()) {
-            $erro = "Este email já está cadastrado!";
-        } else {
-            $hash = password_hash($senha, PASSWORD_BCRYPT);
-            $stmt = $pdo->prepare("INSERT INTO users (nome,email,senha,role) VALUES (?,?,?,'cliente')");
-            $stmt->execute([$nome,$email,$hash]);
-            header("Location: login.php?msg=Cadastro realizado com sucesso, faça login!");
-            exit;
-        }
-    }
+  $stmt = $pdo->prepare("INSERT INTO users (name,email,password,role) VALUES (?,?,?,?)");
+  $stmt->execute([$name, $email, $password, $role]);
+  header("Location: login.php");
 }
 ?>
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-  <meta charset="UTF-8">
-  <title>Cadastro - Agenda Manicure</title>
-  <link rel="stylesheet" href="css/style.css">
-</head>
-<body>
-<div class="container">
-  <h1>Cadastro de Cliente</h1>
-  <?php if (!empty($erro)): ?>
-    <p style="color:red;"><?= $erro ?></p>
-  <?php endif; ?>
-  <form method="post">
-    <div class="form-row">
-      <input type="text" name="nome" placeholder="Nome completo" required class="input">
-      <input type="email" name="email" placeholder="E-mail" required class="input">
-    </div>
-    <div class="form-row">
-      <input type="password" name="senha" placeholder="Senha" required class="input">
-      <input type="password" name="senha2" placeholder="Confirmar senha" required class="input">
-    </div>
-    <button type="submit" class="btn">Cadastrar</button>
-  </form>
-  <p class="note">Já possui conta? <a href="login.php">Faça login</a></p>
-</div>
-</body>
-</html>
+
+<form method="POST">
+  <input type="text" name="name" class="input" placeholder="Nome" required>
+  <input type="email" name="email" class="input" placeholder="Email" required>
+  <input type="password" name="password" class="input" placeholder="Senha" required>
+  <select name="role" class="input" required>
+    <option value="cliente">Cliente</option>
+    <option value="dono">Dono</option>
+  </select>
+  <button type="submit" class="btn">Cadastrar</button>
+</form>
