@@ -1,109 +1,201 @@
+/* 🎨 Paleta */
 :root {
-  /* 🎨 Paleta baseada na imagem */
-  --dark: #1a1a1a;
-  --brown: #5a3a1c;
-  --brown-dark: #2b1b0f;
-  --gold: #c89b4b;
-  --beige-light: #e5e1d6;
-  --beige: #d6c3a5;
+  --primary: #c89b4b;
+  --primary-dark: #5a3a1c;
+  --bg-light: #f5f1ea;
+  --bg-card: #ffffff;
+  --text-dark: #2b1b0f;
+  --text-muted: #7a6a58;
+  --radius: 16px;
+  --shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
 
-  /* 🔧 Auxiliares */
-  --radius: 20px;
-  --shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
-  --transition: 0.3s ease;
+  --success: #d4edda;
+  --success-text: #155724;
+  --warning: #fff3cd;
+  --warning-text: #856404;
+  --danger: #f8d7da;
+  --danger-text: #721c24;
 }
 
+/* 🌍 Base */
 body {
-  font-family: 'Poppins', sans-serif;
-  background: linear-gradient(160deg, var(--beige-light), var(--beige));
   margin: 0;
-  padding: 20px;
-  color: var(--dark);
+  font-family: 'Poppins', sans-serif;
+  background: var(--bg-light);
+  color: var(--text-dark);
   line-height: 1.6;
 }
 
-/* Login */
-.auth-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  background-color: transparent;
-}
-
-.auth-card {
-  background: #fff;
-  padding: 40px 32px;
+/* 📦 Container principal */
+.container {
+  max-width: 1100px;
+  margin: 30px auto;
+  background: var(--bg-card);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
-  width: 90%;
-  max-width: 420px;
-  text-align: center;
-  animation: fadeInUp 0.8s ease forwards;
-  border: none;
-  /* 🔥 Sem borda */
+  padding: 24px;
+  animation: fadeIn 0.5s ease-in-out;
 }
 
-/* Inputs dentro do login */
-.auth-card input,
-.auth-card select,
-.auth-card textarea {
-  width: 90%;
-  padding: 14px 16px;
-  margin-bottom: 18px;
-  font-size: 1rem;
-  border: none;
-  /* 🔥 Sem borda */
-  border-radius: 14px;
-  background: #f8f6f2;
-  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.06);
-  transition: var(--transition);
+/* 🔝 Header */
+.header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding-bottom: 16px;
+  margin-bottom: 20px;
+  border-bottom: 2px solid rgba(0, 0, 0, 0.05);
 }
 
-.auth-card input:focus {
-  outline: none;
-  background: #fff;
-  box-shadow: 0 0 0 3px rgba(200, 155, 75, 0.3);
-}
-
-/* Botão do login */
-.auth-card .btn {
-  background: linear-gradient(135deg, var(--gold), var(--brown));
+.logo {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   color: #fff;
-  padding: 14px 20px;
-  border-radius: 14px;
-  border: none;
-  /* 🔥 Sem borda */
-  cursor: pointer;
-  font-size: 1rem;
-  font-weight: 600;
-  transition: var(--transition);
+  font-size: 28px;
   box-shadow: var(--shadow);
 }
 
-.auth-card .btn:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+.header h1 {
+  font-size: 1.8rem;
+  margin: 0;
+  color: var(--primary-dark);
+  font-weight: 700;
 }
 
-/* Mensagem de erro */
-.auth-card .error-msg {
-  color: var(--brown-dark);
-  font-weight: 600;
-  margin-bottom: 16px;
+.btn {
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: white;
+  padding: 10px 18px;
+  border-radius: 10px;
   border: none;
-  /* 🔥 Sem borda */
-  background: transparent;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 600;
+  transition: 0.3s;
+  box-shadow: var(--shadow);
+  text-decoration: none;
 }
 
-/* Animações */
-@keyframes fadeInUp {
-  0% {
-    opacity: 0;
-    transform: translateY(20px);
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+}
+
+/* 📌 Títulos */
+h2 {
+  font-size: 1.4rem;
+  color: var(--primary-dark);
+  margin-top: 0;
+}
+
+p {
+  color: var(--text-muted);
+}
+
+/* 📅 FullCalendar */
+#calendar {
+  margin-top: 20px;
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 15px;
+}
+
+.fc-toolbar-title {
+  color: var(--primary-dark);
+  font-weight: 700;
+}
+
+.fc-button {
+  background: var(--primary) !important;
+  border: none !important;
+  border-radius: 8px !important;
+  padding: 6px 12px !important;
+  color: #fff !important;
+  font-size: 0.9rem !important;
+  transition: 0.3s;
+}
+
+.fc-button:hover {
+  background: var(--primary-dark) !important;
+}
+
+.fc-daygrid-day.fc-day-today {
+  background: #fffaf0 !important;
+}
+
+/* ✅ Status de eventos */
+.fc-event {
+  border: none !important;
+  border-radius: 10px !important;
+  padding: 4px 8px !important;
+  font-size: 0.85rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Evento agendado */
+.fc-event.agendado {
+  background: var(--warning) !important;
+  color: var(--warning-text) !important;
+}
+
+.fc-event.agendado::before {
+  content: "📅";
+}
+
+/* Evento concluído */
+.fc-event.concluido {
+  background: var(--success) !important;
+  color: var(--success-text) !important;
+}
+
+.fc-event.concluido::before {
+  content: "✅";
+}
+
+/* Evento cancelado */
+.fc-event.cancelado {
+  background: var(--danger) !important;
+  color: var(--danger-text) !important;
+}
+
+.fc-event.cancelado::before {
+  content: "❌";
+}
+
+/* 📱 Responsivo */
+@media (max-width: 768px) {
+  .container {
+    margin: 10px;
+    padding: 16px;
   }
 
-  100% {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .header h1 {
+    font-size: 1.5rem;
+  }
+}
+
+/* 🎞️ Animação */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
     opacity: 1;
     transform: translateY(0);
   }
