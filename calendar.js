@@ -6,72 +6,63 @@ document.addEventListener('DOMContentLoaded', function () {
   let selectService = document.getElementById('agenda-service');
   let inputDate = document.getElementById('agenda-date');
 
-  // 🔽 Carrega os serviços no select
-  if (selectService) {
-    fetch('get_services.php')
-      .then(res => res.json())
-      .then(data => {
-        selectService.innerHTML = data
-          .map(s => `<option value="${s.id}">${s.name}</option>`)
-          .join('');
-      });
-  }
-
   // 📅 Configuração do calendário
   let calendar = new FullCalendar.Calendar(calendarEl, {
+    locale: 'pt-br',
     initialView: 'dayGridMonth',
     selectable: true,
-    editable: true,
+    editable: false,
     height: 'auto',
+    headerToolbar: {
+      left: 'prev,next today',
+      center: 'title',
+      right: 'dayGridMonth,timeGridWeek,timeGridDay'
+    },
+    buttonText: {
+      today: 'Hoje',
+      month: 'Mês',
+      week: 'Semana',
+      day: 'Dia'
+    },
     events: 'get_events.php',
 
-    // 🔽 Define classes CSS de acordo com o status do evento
+    // 📅 Define classes CSS de acordo com o status do evento
     eventClassNames: function (arg) {
       let status = arg.event.extendedProps.status;
       if (status === 'atendido' || status === 'concluido') {
-        return ['concluido']; // ✅ concluído
+        return ['concluido'];
       } else if (status === 'cancelado') {
-        return ['cancelado']; // ❌ cancelado
+        return ['cancelado'];
       } else {
-        return ['agendado']; // 📅 agendado
+        return ['agendado'];
       }
     },
 
-    // 🔽 Quando seleciona uma data abre modal
+    // 📅 Quando seleciona uma data abre modal
     select: function (info) {
       if (modal) {
+        // Define a data selecionada no input
         inputDate.value = info.startStr;
         modal.style.display = 'block';
       }
     },
 
-    // 🔽 Clique no evento → alterar status
+    // 📅 Clique no evento → alterar status
     eventClick: function (info) {
       let statusAtual = info.event.extendedProps.status;
+      let eventId = info.event.id;
 
       if (statusAtual === 'agendado') {
         if (confirm("Deseja marcar este agendamento como concluído?")) {
-          fetch('update_status.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: `id=${info.event.id}&status=concluido`
-          }).then(() => calendar.refetchEvents());
+          updateStatus(eventId, 'concluido');
         }
       } else if (statusAtual === 'concluido') {
         if (confirm("Deseja cancelar este agendamento?")) {
-          fetch('update_status.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: `id=${info.event.id}&status=cancelado`
-          }).then(() => calendar.refetchEvents());
+          updateStatus(eventId, 'cancelado');
         }
       } else if (statusAtual === 'cancelado') {
         if (confirm("Deseja reabrir este agendamento como AGENDADO?")) {
-          fetch('update_status.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: `id=${info.event.id}&status=agendado`
-          }).then(() => calendar.refetchEvents());
+          updateStatus(eventId, 'agendado');
         }
       }
     }
@@ -79,29 +70,77 @@ document.addEventListener('DOMContentLoaded', function () {
 
   calendar.render();
 
-  // 🔽 Fecha modal
-  if (closeModal) {
-    closeModal.onclick = function () { modal.style.display = 'none'; }
-    window.onclick = function (event) { if (event.target == modal) modal.style.display = 'none'; }
+  // 🔄 Função para atualizar status
+  function updateStatus(id, status) {
+    fetch('update_status.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: `id=${id}&status=${status}`
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === 'success') {
+          alert(data.msg);
+          calendar.refetchEvents();
+        } else {
+          alert('Erro: ' + data.msg);
+        }
+      })
+      .catch(err => {
+        console.error('Erro:', err);
+        alert('Erro ao atualizar status');
+      });
   }
 
-  // 🔽 Submissão do agendamento
+  // 📅 Fecha modal
+  if (closeModal) {
+    closeModal.onclick = function () {
+      modal.style.display = 'none';
+    }
+
+    window.onclick = function (event) {
+      if (event.target == modal) {
+        modal.style.display = 'none';
+      }
+    }
+  }
+
+  // 📅 Submissão do agendamento
   if (formAgenda) {
     formAgenda.addEventListener('submit', function (e) {
       e.preventDefault();
+
+      const serviceId = selectService.value;
+      const date = inputDate.value;
+      const time = document.getElementById('agenda-time').value;
+      const endTime = document.getElementById('agenda-end-time').value;
+
+      // Validação básica
+      if (!serviceId || !date || !time) {
+        alert('Por favor, preencha todos os campos obrigatórios!');
+        return;
+      }
+
+      // Envia o formulário
       fetch('add_from_calendar.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: `service_id=${selectService.value}&date=${inputDate.value}&time=${document.getElementById('agenda-time').value}&end_time=${document.getElementById('agenda-end-time').value}`
-      }).then(res => res.json())
+        body: `service_id=${serviceId}&date=${date}&time=${time}&end_time=${endTime}`
+      })
+        .then(res => res.json())
         .then(resp => {
           if (resp.status === 'success') {
-            alert('Agendamento realizado!');
+            alert(resp.msg);
             calendar.refetchEvents();
             modal.style.display = 'none';
+            formAgenda.reset();
           } else {
-            alert(resp.msg);
+            alert('Erro: ' + resp.msg);
           }
+        })
+        .catch(err => {
+          console.error('Erro:', err);
+          alert('Erro ao criar agendamento');
         });
     });
   }

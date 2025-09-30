@@ -10,12 +10,18 @@ try {
     $pdo = new PDO("mysql:host=$host;dbname=$db;charset=utf8", $user, $pass);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 } catch (PDOException $e) {
-    die("Erro ao conectar: ".$e->getMessage());
+    die("Erro ao conectar: " . $e->getMessage());
 }
 
-function checkLogin(){
-    if(!isset($_SESSION['user_id'])){
+function checkLogin()
+{
+    if (!isset($_SESSION['user_id'])) {
         header("Location: login.php");
         exit;
     }
+}
+
+function isDono()
+{
+    return isset($_SESSION['role']) && $_SESSION['role'] === 'dono';
 }
