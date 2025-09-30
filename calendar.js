@@ -5,11 +5,44 @@ document.addEventListener('DOMContentLoaded', function () {
   let formAgenda = document.getElementById('form-agenda');
   let selectService = document.getElementById('agenda-service');
   let inputDate = document.getElementById('agenda-date');
+  let inputTime = document.getElementById('agenda-time');
+  let inputEndTime = document.getElementById('agenda-end-time');
 
-  // 📅 Configuração do calendário
+  // Debug: Verificar se os elementos existem
+  console.log('Modal:', modal);
+  console.log('Form:', formAgenda);
+  console.log('Select Service:', selectService);
+
+  // Carregar serviços
+  if (selectService) {
+    fetch('get_services.php')
+      .then(res => res.json())
+      .then(data => {
+        console.log('Serviços carregados:', data);
+        selectService.innerHTML = '<option value="">Selecione um serviço</option>' +
+          data.map(s => `<option value="${s.id}">${s.name} - R$ ${parseFloat(s.price).toFixed(2)}</option>`).join('');
+      })
+      .catch(err => {
+        console.error('Erro ao carregar serviços:', err);
+        selectService.innerHTML = '<option value="">Erro ao carregar serviços</option>';
+      });
+  }
+
+  // Configurar horário fim automaticamente (1 hora após início)
+  if (inputTime && inputEndTime) {
+    inputTime.addEventListener('change', function () {
+      if (this.value) {
+        let [hours, minutes] = this.value.split(':');
+        let endHour = (parseInt(hours) + 1) % 24;
+        inputEndTime.value = `${String(endHour).padStart(2, '0')}:${minutes}`;
+      }
+    });
+  }
+
+  // Inicializar calendário
   let calendar = new FullCalendar.Calendar(calendarEl, {
-    locale: 'pt-br',
     initialView: 'dayGridMonth',
+    locale: 'pt-br',
     selectable: true,
     editable: false,
     height: 'auto',
@@ -25,122 +58,84 @@ document.addEventListener('DOMContentLoaded', function () {
       day: 'Dia'
     },
     events: 'get_events.php',
-
-    // 📅 Define classes CSS de acordo com o status do evento
     eventClassNames: function (arg) {
-      let status = arg.event.extendedProps.status;
-      if (status === 'atendido' || status === 'concluido') {
-        return ['concluido'];
-      } else if (status === 'cancelado') {
-        return ['cancelado'];
-      } else {
-        return ['agendado'];
-      }
+      return arg.event.extendedProps.status === 'atendido' ? ['event-done'] : ['event-agendado'];
     },
-
-    // 📅 Quando seleciona uma data abre modal
+    eventTimeFormat: {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    },
     select: function (info) {
       if (modal) {
-        // Define a data selecionada no input
-        inputDate.value = info.startStr;
+        // Formatar data para o input
+        let selectedDate = info.startStr.split('T')[0];
+        inputDate.value = selectedDate;
+
+        // Definir horário padrão (9:00 - 10:00)
+        inputTime.value = '09:00';
+        inputEndTime.value = '10:00';
+
         modal.style.display = 'block';
       }
+      calendar.unselect();
     },
-
-    // 📅 Clique no evento → alterar status
     eventClick: function (info) {
-      let statusAtual = info.event.extendedProps.status;
-      let eventId = info.event.id;
-
-      if (statusAtual === 'agendado') {
-        if (confirm("Deseja marcar este agendamento como concluído?")) {
-          updateStatus(eventId, 'concluido');
-        }
-      } else if (statusAtual === 'concluido') {
-        if (confirm("Deseja cancelar este agendamento?")) {
-          updateStatus(eventId, 'cancelado');
-        }
-      } else if (statusAtual === 'cancelado') {
-        if (confirm("Deseja reabrir este agendamento como AGENDADO?")) {
-          updateStatus(eventId, 'agendado');
-        }
+      if (confirm("Deseja marcar este agendamento como atendido?")) {
+        fetch('update_status.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: `id=${info.event.id}&status=atendido`
+        })
+          .then(res => res.text())
+          .then(() => {
+            calendar.refetchEvents();
+            alert('Status atualizado com sucesso!');
+          })
+          .catch(err => console.error('Erro ao atualizar status:', err));
       }
     }
   });
 
   calendar.render();
 
-  // 🔄 Função para atualizar status
-  function updateStatus(id, status) {
-    fetch('update_status.php', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: `id=${id}&status=${status}`
-    })
-      .then(res => res.json())
-      .then(data => {
-        if (data.status === 'success') {
-          alert(data.msg);
-          calendar.refetchEvents();
-        } else {
-          alert('Erro: ' + data.msg);
-        }
-      })
-      .catch(err => {
-        console.error('Erro:', err);
-        alert('Erro ao atualizar status');
-      });
-  }
-
-  // 📅 Fecha modal
+  // Fechar modal
   if (closeModal) {
-    closeModal.onclick = function () {
-      modal.style.display = 'none';
-    }
-
+    closeModal.onclick = function () { modal.style.display = 'none'; }
     window.onclick = function (event) {
-      if (event.target == modal) {
-        modal.style.display = 'none';
-      }
+      if (event.target == modal) modal.style.display = 'none';
     }
   }
 
-  // 📅 Submissão do agendamento
+  // Submeter agendamento
   if (formAgenda) {
     formAgenda.addEventListener('submit', function (e) {
       e.preventDefault();
 
-      const serviceId = selectService.value;
-      const date = inputDate.value;
-      const time = document.getElementById('agenda-time').value;
-      const endTime = document.getElementById('agenda-end-time').value;
-
-      // Validação básica
-      if (!serviceId || !date || !time) {
-        alert('Por favor, preencha todos os campos obrigatórios!');
+      if (!selectService.value) {
+        alert('Por favor, selecione um serviço!');
         return;
       }
 
-      // Envia o formulário
       fetch('add_from_calendar.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: `service_id=${serviceId}&date=${date}&time=${time}&end_time=${endTime}`
+        body: `service_id=${selectService.value}&date=${inputDate.value}&time=${inputTime.value}&end_time=${inputEndTime.value}`
       })
         .then(res => res.json())
         .then(resp => {
           if (resp.status === 'success') {
-            alert(resp.msg);
+            alert('✅ Agendamento realizado com sucesso!');
             calendar.refetchEvents();
             modal.style.display = 'none';
             formAgenda.reset();
           } else {
-            alert('Erro: ' + resp.msg);
+            alert('❌ ' + resp.msg);
           }
         })
         .catch(err => {
           console.error('Erro:', err);
-          alert('Erro ao criar agendamento');
+          alert('Erro ao realizar agendamento. Tente novamente.');
         });
     });
   }
