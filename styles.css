@@ -8,6 +8,10 @@
   --beige-light: #e5e1d6;
   --beige: #d6c3a5;
   --white: #ffffff;
+  --success: #4caf50;
+  --warning: #ff9800;
+  --error: #f44336;
+  --info: #2196f3;
   --radius: 16px;
   --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   --transition: 0.3s ease;
@@ -26,6 +30,51 @@ body {
   padding: 20px;
   color: var(--dark);
   line-height: 1.6;
+}
+
+/* ========== TOAST MESSAGES ========== */
+.toast-message {
+  position: fixed;
+  top: 20px;
+  right: -400px;
+  background: var(--white);
+  color: var(--dark);
+  padding: 16px 24px;
+  border-radius: 12px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.15);
+  z-index: 9999;
+  font-weight: 500;
+  max-width: 350px;
+  transition: right 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  border-left: 4px solid var(--gold);
+}
+
+.toast-message.show {
+  right: 20px;
+}
+
+.toast-message.toast-success {
+  border-left-color: var(--success);
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.toast-message.toast-error {
+  border-left-color: var(--error);
+  background: #ffebee;
+  color: #c62828;
+}
+
+.toast-message.toast-warning {
+  border-left-color: var(--warning);
+  background: #fff3e0;
+  color: #e65100;
+}
+
+.toast-message.toast-info {
+  border-left-color: var(--info);
+  background: #e3f2fd;
+  color: #1565c0;
 }
 
 /* ========== CONTAINER PRINCIPAL ========== */
@@ -111,13 +160,19 @@ body {
   font-family: 'Poppins', sans-serif;
 }
 
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
 .btn-primary {
   background: linear-gradient(135deg, var(--gold), var(--brown));
   color: var(--white);
   width: 100%;
 }
 
-.btn-primary:hover {
+.btn-primary:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow: 0 6px 24px rgba(200, 155, 75, 0.4);
 }
@@ -128,7 +183,7 @@ body {
   border: 2px solid var(--beige);
 }
 
-.btn-secondary:hover {
+.btn-secondary:hover:not(:disabled) {
   background: var(--beige-light);
   transform: translateY(-2px);
 }
@@ -173,6 +228,11 @@ body {
 
 .fc-daygrid-day:hover {
   background: var(--beige-light);
+}
+
+.fc-daygrid-day.fc-day-past {
+  background: #fafafa;
+  opacity: 0.6;
 }
 
 .fc-daygrid-day-number {
@@ -224,6 +284,7 @@ body {
   background: linear-gradient(135deg, #6b8e6b, #4a6b4a) !important;
   color: var(--white) !important;
   opacity: 0.75;
+  text-decoration: line-through;
 }
 
 .fc-event:hover {
@@ -319,6 +380,13 @@ select.input:focus {
   outline: none;
   border-color: var(--gold);
   box-shadow: 0 0 0 4px rgba(200, 155, 75, 0.15);
+}
+
+.input:disabled,
+select.input:disabled {
+  background: #f5f5f5;
+  cursor: not-allowed;
+  opacity: 0.7;
 }
 
 select.input {
@@ -437,6 +505,15 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 @media (max-width: 768px) {
   body {
     padding: 12px;
+  }
+
+  .toast-message {
+    right: -350px;
+    max-width: 90%;
+  }
+
+  .toast-message.show {
+    right: 10px;
   }
 
   .header {
