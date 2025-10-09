@@ -4,34 +4,35 @@
 define('SMTP_HOST', 'smtp.gmail.com');
 define('SMTP_PORT', 587);
 define('SMTP_USER', 'seu-email@gmail.com'); // ALTERE
-define('SMTP_PASS', 'sua-senha-app'); // ALTERE - Use senha de app do Gmail
+define('SMTP_PASS', 'sua-senha-app'); // ALTERE
 define('SMTP_FROM', 'seu-email@gmail.com'); // ALTERE
 define('SMTP_NAME', 'Agenda Manicure');
 
-define('WHATSAPP_ENABLED', true);
-define('WHATSAPP_NUMBER', '5517999999999'); // ALTERE: Número com DDI+DDD
+define('WHATSAPP_ENABLED', false); // Desabilite se não quiser WhatsApp
+define('WHATSAPP_NUMBER', '5517999999999');
 
-define('ESTABELECIMENTO_NOME', 'Salão de Beleza XYZ'); // ALTERE
-define('ESTABELECIMENTO_ENDERECO', 'Rua Exemplo, 123 - Centro'); // ALTERE
-define('ESTABELECIMENTO_TELEFONE', '(17) 99999-9999'); // ALTERE
+define('ESTABELECIMENTO_NOME', 'Salão de Beleza XYZ');
+define('ESTABELECIMENTO_ENDERECO', 'Rua Exemplo, 123 - Centro');
+define('ESTABELECIMENTO_TELEFONE', '(17) 99999-9999');
 
 function enviarEmail($para, $assunto, $mensagem, $html = true)
 {
+    // Retorna false por enquanto - descomente quando configurar
+    return false;
+
+    /*
     $headers = "MIME-Version: 1.0\r\n";
     if ($html) {
         $headers .= "Content-type: text/html; charset=UTF-8\r\n";
-    } else {
-        $headers .= "Content-type: text/plain; charset=UTF-8\r\n";
     }
     $headers .= "From: " . SMTP_NAME . " <" . SMTP_FROM . ">\r\n";
-    $headers .= "Reply-To: " . SMTP_FROM . "\r\n";
-
     return mail($para, $assunto, $mensagem, $headers);
+    */
 }
 
 function gerarLinkWhatsApp($numeroCliente, $mensagem)
 {
-    if (!WHATSAPP_ENABLED)
+    if (!WHATSAPP_ENABLED || empty($numeroCliente))
         return null;
     $numero = preg_replace('/[^0-9]/', '', $numeroCliente);
     if (strlen($numero) <= 11) {
@@ -48,37 +49,24 @@ function emailAgendamentoConfirmado($nomeCliente, $servico, $dataHora)
     <html>
     <head>
         <style>
-            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+            body { font-family: Arial, sans-serif; color: #333; }
             .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-            .header { background: linear-gradient(135deg, #c89b4b, #5a3a1c); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
-            .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
-            .info-box { background: white; padding: 20px; margin: 20px 0; border-left: 4px solid #c89b4b; border-radius: 5px; }
-            .footer { text-align: center; margin-top: 20px; color: #666; font-size: 12px; }
+            .header { background: linear-gradient(135deg, #c89b4b, #5a3a1c); color: white; padding: 30px; text-align: center; }
+            .content { background: #f9f9f9; padding: 30px; }
+            .info-box { background: white; padding: 20px; margin: 20px 0; border-left: 4px solid #c89b4b; }
         </style>
     </head>
     <body>
         <div class='container'>
-            <div class='header'>
-                <h1>💅 Agendamento Confirmado!</h1>
-            </div>
+            <div class='header'><h1>💅 Agendamento Confirmado!</h1></div>
             <div class='content'>
                 <p>Olá <strong>{$nomeCliente}</strong>,</p>
-                <p>Seu agendamento foi <strong style='color: #4caf50;'>CONFIRMADO</strong> com sucesso!</p>
-                
+                <p>Seu agendamento foi confirmado!</p>
                 <div class='info-box'>
-                    <h3>📋 Detalhes do Agendamento:</h3>
+                    <h3>📋 Detalhes:</h3>
                     <p><strong>Serviço:</strong> {$servico}</p>
-                    <p><strong>Data e Hora:</strong> {$dataHora}</p>
+                    <p><strong>Data/Hora:</strong> {$dataHora}</p>
                     <p><strong>Local:</strong> " . ESTABELECIMENTO_NOME . "</p>
-                    <p><strong>Endereço:</strong> " . ESTABELECIMENTO_ENDERECO . "</p>
-                </div>
-                
-                <p>Estamos ansiosos para atendê-la! 💖</p>
-                <p>Se precisar de qualquer alteração, entre em contato: " . ESTABELECIMENTO_TELEFONE . "</p>
-                
-                <div class='footer'>
-                    <p>Este é um email automático, por favor não responda.</p>
-                    <p>" . ESTABELECIMENTO_NOME . " | " . ESTABELECIMENTO_ENDERECO . "</p>
                 </div>
             </div>
         </div>
@@ -90,93 +78,11 @@ function emailAgendamentoConfirmado($nomeCliente, $servico, $dataHora)
 function emailAgendamentoRecusado($nomeCliente, $servico, $dataHora, $motivo = '')
 {
     $motivoHtml = $motivo ? "<p><strong>Motivo:</strong> {$motivo}</p>" : "";
-
-    return "
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <style>
-            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-            .header { background: linear-gradient(135deg, #f44336, #c62828); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
-            .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
-            .info-box { background: white; padding: 20px; margin: 20px 0; border-left: 4px solid #f44336; border-radius: 5px; }
-            .footer { text-align: center; margin-top: 20px; color: #666; font-size: 12px; }
-        </style>
-    </head>
-    <body>
-        <div class='container'>
-            <div class='header'>
-                <h1>😔 Agendamento Não Confirmado</h1>
-            </div>
-            <div class='content'>
-                <p>Olá <strong>{$nomeCliente}</strong>,</p>
-                <p>Infelizmente não conseguimos confirmar seu agendamento.</p>
-                
-                <div class='info-box'>
-                    <h3>📋 Detalhes do Agendamento:</h3>
-                    <p><strong>Serviço:</strong> {$servico}</p>
-                    <p><strong>Data e Hora:</strong> {$dataHora}</p>
-                    {$motivoHtml}
-                </div>
-                
-                <p>Entre em contato conosco para agendar outro horário!</p>
-                <p><strong>Telefone/WhatsApp:</strong> " . ESTABELECIMENTO_TELEFONE . "</p>
-                
-                <div class='footer'>
-                    <p>Este é um email automático, por favor não responda.</p>
-                    <p>" . ESTABELECIMENTO_NOME . " | " . ESTABELECIMENTO_ENDERECO . "</p>
-                </div>
-            </div>
-        </div>
-    </body>
-    </html>
-    ";
+    return "<html><body><h2>Agendamento Não Confirmado</h2><p>Olá {$nomeCliente}, infelizmente não conseguimos confirmar.</p>{$motivoHtml}</body></html>";
 }
 
 function emailAgendamentoCancelado($nomeCliente, $servico, $dataHora, $motivo = '')
 {
     $motivoHtml = $motivo ? "<p><strong>Motivo:</strong> {$motivo}</p>" : "";
-
-    return "
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <style>
-            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-            .header { background: linear-gradient(135deg, #ff9800, #f57c00); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
-            .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
-            .info-box { background: white; padding: 20px; margin: 20px 0; border-left: 4px solid #ff9800; border-radius: 5px; }
-            .footer { text-align: center; margin-top: 20px; color: #666; font-size: 12px; }
-        </style>
-    </head>
-    <body>
-        <div class='container'>
-            <div class='header'>
-                <h1>❌ Agendamento Cancelado</h1>
-            </div>
-            <div class='content'>
-                <p>Olá <strong>{$nomeCliente}</strong>,</p>
-                <p>Seu agendamento foi cancelado conforme solicitado.</p>
-                
-                <div class='info-box'>
-                    <h3>📋 Detalhes do Agendamento Cancelado:</h3>
-                    <p><strong>Serviço:</strong> {$servico}</p>
-                    <p><strong>Data e Hora:</strong> {$dataHora}</p>
-                    {$motivoHtml}
-                </div>
-                
-                <p>Esperamos vê-la em breve! Será um prazer atendê-la novamente. 💖</p>
-                <p>Para novo agendamento, acesse o sistema ou entre em contato: " . ESTABELECIMENTO_TELEFONE . "</p>
-                
-                <div class='footer'>
-                    <p>Este é um email automático, por favor não responda.</p>
-                    <p>" . ESTABELECIMENTO_NOME . " | " . ESTABELECIMENTO_ENDERECO . "</p>
-                </div>
-            </div>
-        </div>
-    </body>
-    </html>
-    ";
+    return "<html><body><h2>Agendamento Cancelado</h2><p>Olá {$nomeCliente}, seu agendamento foi cancelado.</p>{$motivoHtml}</body></html>";
 }

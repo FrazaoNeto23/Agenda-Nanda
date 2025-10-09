@@ -29,12 +29,12 @@ try {
     $events = [];
     while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
         $events[] = [
-            'id' => $row['id'],
-            'title' => $row['title'],
+            'id' => (int) $row['id'],
+            'title' => htmlspecialchars($row['title']),
             'start' => $row['start'],
             'end' => $row['end'],
             'status' => strtolower($row['status']),
-            'user_name' => $row['user_name'] ?? null,
+            'user_name' => isset($row['user_name']) ? htmlspecialchars($row['user_name']) : null,
             'user_email' => $row['user_email'] ?? null
         ];
     }
@@ -42,7 +42,10 @@ try {
     echo json_encode($events);
 
 } catch (PDOException $e) {
-    error_log('Erro: ' . $e->getMessage());
+    error_log('Erro ao buscar histórico: ' . $e->getMessage());
     http_response_code(500);
-    echo json_encode(['error' => 'Erro ao carregar', 'events' => []]);
+    echo json_encode([
+        'error' => 'Erro ao carregar histórico',
+        'events' => []
+    ]);
 }

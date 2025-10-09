@@ -28,12 +28,14 @@ try {
 
     $events = [];
     while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-        $title = $row['title'];
+        $title = htmlspecialchars($row['title']);
         $status = strtolower($row['status']);
 
         // Se for dono, adiciona o nome do cliente e indicador de pendente
-        if ($user_role === 'dono' && !empty($row['user_name'])) {
-            $title .= ' - ' . $row['user_name'];
+        if ($user_role === 'dono') {
+            if (!empty($row['user_name'])) {
+                $title .= ' - ' . htmlspecialchars($row['user_name']);
+            }
             if ($status === 'pendente') {
                 $title = '⏳ ' . $title . ' (PENDENTE)';
             }
@@ -55,7 +57,10 @@ try {
     echo json_encode($events);
 
 } catch (PDOException $e) {
-    error_log('Erro: ' . $e->getMessage());
+    error_log('Erro ao buscar eventos: ' . $e->getMessage());
     http_response_code(500);
-    echo json_encode(['error' => 'Erro ao carregar eventos', 'events' => []]);
+    echo json_encode([
+        'error' => 'Erro ao carregar eventos',
+        'events' => []
+    ]);
 }

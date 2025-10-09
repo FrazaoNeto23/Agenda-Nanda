@@ -6,25 +6,29 @@ header('Content-Type: application/json');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $service_id = intval($_POST['service_id'] ?? 0);
-    $date = $_POST['date'] ?? '';
-    $time = $_POST['time'] ?? '';
-    $end_time = $_POST['end_time'] ?? '';
+    $date = trim($_POST['date'] ?? '');
+    $time = trim($_POST['time'] ?? '');
+    $end_time = trim($_POST['end_time'] ?? '');
 
+    // Validações básicas
     if (!$service_id || !$date || !$time) {
-        echo json_encode(['status' => 'error', 'msg' => 'Dados incompletos.']);
+        echo json_encode(['status' => 'error', 'msg' => 'Dados incompletos. Preencha todos os campos obrigatórios.']);
         exit;
     }
 
+    // Validar formato de data
     if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
         echo json_encode(['status' => 'error', 'msg' => 'Formato de data inválido.']);
         exit;
     }
 
+    // Validar formato de hora
     if (!preg_match('/^\d{2}:\d{2}$/', $time)) {
         echo json_encode(['status' => 'error', 'msg' => 'Formato de horário inválido.']);
         exit;
     }
 
+    // Verificar se a data/hora não é no passado
     $start_datetime = $date . ' ' . $time;
     if (strtotime($start_datetime) < time()) {
         echo json_encode(['status' => 'error', 'msg' => 'Não é possível agendar em horários passados.']);
@@ -32,6 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     try {
+        // Recupera o serviço
         $stmt = $pdo->prepare("SELECT name, duration FROM services WHERE id = :id");
         $stmt->execute([':id' => $service_id]);
         $service = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -43,14 +48,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $title = $service['name'];
 
+        // Se não forneceu end_time, calcular baseado na duração do serviço
         if (empty($end_time)) {
             $duration = intval($service['duration'] ?? 60);
-            $end_time = date('H:i', strtotime($time) + ($duration * 60));
+            $end_timestamp = strtotime($time) + ($duration * 60);
+            $end_time = date('H:i', $end_timestamp);
         }
 
         $start = $date . ' ' . $time;
         $end = $date . ' ' . $end_time;
 
+        // Verificar se já existe agendamento no mesmo horário
         $stmt = $pdo->prepare("
             SELECT COUNT(*) FROM events 
             WHERE status != 'cancelado' 
@@ -62,8 +70,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ");
         $stmt->execute([':start' => $start, ':end' => $end]);
 
-        if ($stmt->fetchColumn() > 0) {
-            echo json_encode(['status' => 'error', 'msg' => 'Já existe agendamento neste horário.']);
+        $conflictCount = $stmt->fetchColumn();
+
+        if ($conflictCount > 0) {
+            echo json_encode(['status' => 'error', 'msg' => 'Já existe um agendamento neste horário. Escolha outro horário.']);
             exit;
         }
 
@@ -75,6 +85,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             INSERT INTO events (title, start, end, status, user_id)
             VALUES (:title, :start, :end, :status, :user_id)
         ");
+
         $stmt->execute([
             ':title' => $title,
             ':start' => $start,
@@ -90,9 +101,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ]);
 
     } catch (PDOException $e) {
-        error_log('Erro: ' . $e->getMessage());
-        echo json_encode(['status' => 'error', 'msg' => 'Erro ao criar agendamento.']);
+        error_log('Erro ao criar agendamento: ' . $e->getMessage());
+        echo json_encode([
+            'status' => 'error',
+            'msg' => 'Erro ao criar agendamento. Tente novamente.'
+        ]);
     }
 } else {
-    echo json_encode(['status' => 'error', 'msg' => 'Método inválido.']);
+    echo json_encode([
+        'status' => 'error',
+        'msg' => 'Método inválido.'
+    ]);
 }
