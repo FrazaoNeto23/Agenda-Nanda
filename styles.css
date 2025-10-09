@@ -275,11 +275,18 @@ body {
   transition: var(--transition) !important;
 }
 
+.event-pendente {
+  background: linear-gradient(135deg, #ff9800, #f57c00) !important;
+  color: var(--white) !important;
+  animation: pulse 2s infinite;
+}
+
 .event-agendado {
   background: linear-gradient(135deg, var(--gold), #b88a3f) !important;
   color: var(--white) !important;
 }
 
+.event-concluido,
 .event-done {
   background: linear-gradient(135deg, #6b8e6b, #4a6b4a) !important;
   color: var(--white) !important;
@@ -287,9 +294,28 @@ body {
   text-decoration: line-through;
 }
 
+.event-cancelado {
+  background: linear-gradient(135deg, #999, #666) !important;
+  color: var(--white) !important;
+  opacity: 0.5;
+  text-decoration: line-through;
+}
+
 .fc-event:hover {
   transform: scale(1.05);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+@keyframes pulse {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.85;
+  }
 }
 
 /* ========== MODAL ========== */
@@ -402,6 +428,11 @@ input[type="date"]::-webkit-calendar-picker-indicator,
 input[type="time"]::-webkit-calendar-picker-indicator {
   cursor: pointer;
   filter: invert(40%) sepia(20%) saturate(800%) hue-rotate(350deg);
+}
+
+textarea.input {
+  resize: vertical;
+  min-height: 80px;
 }
 
 /* Formulário dentro do modal */

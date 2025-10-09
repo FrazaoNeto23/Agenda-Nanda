@@ -26,7 +26,8 @@ $user_name = $_SESSION['name'] ?? '';
         <h1>Agenda Manicure</h1>
         <p class="subtitle">Bem-vinda, <?php echo htmlspecialchars($user_name); ?>!</p>
       </div>
-      <div style="margin-left: auto;">
+      <div style="margin-left: auto; display: flex; gap: 10px; flex-wrap: wrap;">
+        <a href="historico.php" class="btn btn-secondary">📜 Histórico</a>
         <a href="logout.php" class="btn btn-secondary">Sair</a>
       </div>
     </div>
@@ -34,10 +35,12 @@ $user_name = $_SESSION['name'] ?? '';
     <div class="info-box">
       <?php if ($user_role === 'dono'): ?>
         <h2>👑 Painel do Dono</h2>
-        <p>Visualize todos os agendamentos. Clique em um agendamento para marcá-lo como concluído.</p>
+        <p>Agendamentos <strong>pendentes</strong> (laranja piscando) aguardam sua confirmação. Clique neles para
+          confirmar ou recusar. Agendamentos confirmados podem ser marcados como concluídos.</p>
       <?php else: ?>
         <h2>✨ Agende seu Horário</h2>
-        <p>Clique em um dia no calendário para agendar seu serviço.</p>
+        <p>Clique em um dia no calendário para agendar. Seu agendamento ficará <strong>pendente</strong> até o
+          estabelecimento confirmar.</p>
       <?php endif; ?>
     </div>
 

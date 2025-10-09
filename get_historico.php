@@ -20,7 +20,7 @@ try {
         $stmt = $pdo->prepare("
             SELECT e.id, e.title, e.start, e.end, e.status
             FROM events e
-            WHERE e.user_id = :user_id AND e.status != 'cancelado'
+            WHERE e.user_id = :user_id
             ORDER BY e.start DESC
         ");
         $stmt->execute([':user_id' => $user_id]);
@@ -28,27 +28,14 @@ try {
 
     $events = [];
     while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-        $title = $row['title'];
-        $status = strtolower($row['status']);
-
-        // Se for dono, adiciona o nome do cliente e indicador de pendente
-        if ($user_role === 'dono' && !empty($row['user_name'])) {
-            $title .= ' - ' . $row['user_name'];
-            if ($status === 'pendente') {
-                $title = '⏳ ' . $title . ' (PENDENTE)';
-            }
-        }
-
         $events[] = [
             'id' => $row['id'],
-            'title' => $title,
+            'title' => $row['title'],
             'start' => $row['start'],
             'end' => $row['end'],
-            'status' => $status,
-            'extendedProps' => [
-                'status' => $status,
-                'user_email' => $row['user_email'] ?? null
-            ]
+            'status' => strtolower($row['status']),
+            'user_name' => $row['user_name'] ?? null,
+            'user_email' => $row['user_email'] ?? null
         ];
     }
 
@@ -57,5 +44,5 @@ try {
 } catch (PDOException $e) {
     error_log('Erro: ' . $e->getMessage());
     http_response_code(500);
-    echo json_encode(['error' => 'Erro ao carregar eventos', 'events' => []]);
+    echo json_encode(['error' => 'Erro ao carregar', 'events' => []]);
 }
