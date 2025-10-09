@@ -75,6 +75,13 @@ document.addEventListener('DOMContentLoaded', function () {
     inputDate.setAttribute('min', today);
   }
 
+  // Verificar se FullCalendar está carregado
+  if (typeof FullCalendar === 'undefined') {
+    console.error('FullCalendar não foi carregado! Verifique se o script está no HTML.');
+    alert('Erro: Biblioteca do calendário não carregada. Recarregue a página.');
+    return;
+  }
+
   // Inicializar calendário
   let calendar = new FullCalendar.Calendar(calendarEl, {
     initialView: 'dayGridMonth',

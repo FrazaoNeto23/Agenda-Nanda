@@ -13,9 +13,9 @@ $user_name = $_SESSION['name'] ?? '';
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Agenda Manicure</title>
   <link href="styles.css" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/main.min.css" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/main.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/locales/pt-br.js"></script>
+
+  <!-- FullCalendar CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.css" rel="stylesheet">
 </head>
 
 <body>
@@ -34,7 +34,7 @@ $user_name = $_SESSION['name'] ?? '';
     <div class="info-box">
       <?php if ($user_role === 'dono'): ?>
         <h2>👑 Painel do Dono</h2>
-        <p>Visualize todos os agendamentos. Clique em um agendamento para marcá-lo como atendido.</p>
+        <p>Visualize todos os agendamentos. Clique em um agendamento para marcá-lo como concluído.</p>
       <?php else: ?>
         <h2>✨ Agende seu Horário</h2>
         <p>Clique em um dia no calendário para agendar seu serviço.</p>
@@ -82,6 +82,8 @@ $user_name = $_SESSION['name'] ?? '';
 
   </div>
 
+  <!-- FullCalendar JS - IMPORTANTE: Carregar ANTES do calendar.js -->
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
   <script src="calendar.js"></script>
 </body>
 
