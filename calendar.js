@@ -184,10 +184,14 @@ document.addEventListener('DOMContentLoaded', function () {
             } else if (eventStatus === 'agendado') {
               // Agendamento já confirmado, pode marcar como concluído
               if (confirm(`Marcar "${eventTitle}" como concluído?`)) {
+                const formData = new URLSearchParams();
+                formData.append('id', eventId);
+                formData.append('status', 'concluido');
+
                 fetch('update_status.php', {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                  body: `id=${eventId}&status=concluido`
+                  body: formData.toString()
                 })
                   .then(res => res.json())
                   .then(data => {
@@ -195,7 +199,6 @@ document.addEventListener('DOMContentLoaded', function () {
                       calendar.refetchEvents();
                       showMessage('✅ Agendamento concluído!', 'success');
 
-                      // Se tem link do WhatsApp, mostrar
                       if (data.whatsapp_link) {
                         if (confirm('Deseja enviar confirmação via WhatsApp?')) {
                           window.open(data.whatsapp_link, '_blank');
@@ -318,7 +321,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  // Funções para modais de confirmação/cancelamento
+  // ========== FUNÇÕES DE MODAL - DONO ==========
   function mostrarModalDonoConfirmar(eventId, eventTitle) {
     const modalHTML = `
       <div id="modal-confirmar" class="modal" style="display: block;">
@@ -346,6 +349,7 @@ document.addEventListener('DOMContentLoaded', function () {
     document.body.insertAdjacentHTML('beforeend', modalHTML);
   }
 
+  // ========== FUNÇÕES DE MODAL - CLIENTE ==========
   function mostrarModalClienteCancelar(eventId, eventTitle, status) {
     const statusTexto = status === 'pendente' ? 'pendente de confirmação' : 'confirmado';
     const modalHTML = `
@@ -377,47 +381,74 @@ document.addEventListener('DOMContentLoaded', function () {
     document.body.insertAdjacentHTML('beforeend', modalHTML);
   }
 
+  // ========== FUNÇÕES GLOBAIS (window) ==========
+
   window.confirmarAgendamento = function (eventId) {
+    console.log('🔵 Confirmando agendamento ID:', eventId);
+
+    const formData = new URLSearchParams();
+    formData.append('id', eventId);
+    formData.append('status', 'agendado');
+
+    console.log('📤 Enviando dados:', formData.toString());
+
     fetch('update_status.php', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: `id=${eventId}&status=agendado`
+      body: formData.toString()
     })
-      .then(res => res.json())
+      .then(res => {
+        console.log('📥 Resposta recebida, status:', res.status);
+        return res.json();
+      })
       .then(data => {
+        console.log('✅ Dados recebidos:', data);
+
         if (data.status === 'success') {
           calendar.refetchEvents();
           fecharModalConfirmar();
           showMessage('✅ Agendamento confirmado com sucesso!', 'success');
 
-          // Se tem link do WhatsApp, perguntar se quer enviar
           if (data.whatsapp_link) {
             setTimeout(() => {
-              if (confirm('✅ Email enviado!\n\nDeseja também enviar confirmação via WhatsApp?')) {
+              if (confirm('✅ Agendamento confirmado!\n\nDeseja enviar confirmação via WhatsApp?')) {
                 window.open(data.whatsapp_link, '_blank');
               }
             }, 500);
           }
         } else {
+          console.error('❌ Erro na resposta:', data.msg);
           showMessage('❌ ' + (data.msg || 'Erro ao confirmar'), 'error');
         }
       })
       .catch(err => {
-        console.error('Erro:', err);
-        showMessage('Erro ao confirmar agendamento', 'error');
+        console.error('❌ Erro na requisição:', err);
+        showMessage('❌ Erro ao confirmar agendamento', 'error');
       });
   }
 
   window.recusarAgendamento = function (eventId) {
-    const motivo = document.getElementById('motivo-recusar').value.trim();
+    console.log('🔴 Recusando agendamento ID:', eventId);
+
+    const motivoElement = document.getElementById('motivo-recusar');
+    const motivo = motivoElement ? motivoElement.value.trim() : '';
+
+    const formData = new URLSearchParams();
+    formData.append('id', eventId);
+    formData.append('status', 'cancelado');
+    formData.append('motivo', motivo);
+
+    console.log('📤 Enviando recusa:', formData.toString());
 
     fetch('update_status.php', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: `id=${eventId}&status=cancelado&motivo=${encodeURIComponent(motivo)}`
+      body: formData.toString()
     })
       .then(res => res.json())
       .then(data => {
+        console.log('📥 Resposta recusa:', data);
+
         if (data.status === 'success') {
           calendar.refetchEvents();
           fecharModalConfirmar();
@@ -425,42 +456,56 @@ document.addEventListener('DOMContentLoaded', function () {
 
           if (data.whatsapp_link) {
             setTimeout(() => {
-              if (confirm('Email de recusa enviado!\n\nDeseja também notificar via WhatsApp?')) {
+              if (confirm('Deseja notificar cliente via WhatsApp?')) {
                 window.open(data.whatsapp_link, '_blank');
               }
             }, 500);
           }
         } else {
+          console.error('❌ Erro ao recusar:', data.msg);
           showMessage('❌ ' + (data.msg || 'Erro ao recusar'), 'error');
         }
       })
       .catch(err => {
-        console.error('Erro:', err);
-        showMessage('Erro ao recusar agendamento', 'error');
+        console.error('❌ Erro na requisição:', err);
+        showMessage('❌ Erro ao recusar agendamento', 'error');
       });
   }
 
   window.cancelarMeuAgendamento = function (eventId) {
-    const motivo = document.getElementById('motivo-cancelar').value.trim();
+    console.log('🟡 Cliente cancelando ID:', eventId);
+
+    const motivoElement = document.getElementById('motivo-cancelar');
+    const motivo = motivoElement ? motivoElement.value.trim() : '';
+
+    const formData = new URLSearchParams();
+    formData.append('id', eventId);
+    formData.append('status', 'cancelado');
+    formData.append('motivo', motivo);
+
+    console.log('📤 Enviando cancelamento:', formData.toString());
 
     fetch('update_status.php', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: `id=${eventId}&status=cancelado&motivo=${encodeURIComponent(motivo)}`
+      body: formData.toString()
     })
       .then(res => res.json())
       .then(data => {
+        console.log('📥 Resposta cancelamento:', data);
+
         if (data.status === 'success') {
           calendar.refetchEvents();
           fecharModalCancelar();
           showMessage('✅ Agendamento cancelado com sucesso', 'success');
         } else {
+          console.error('❌ Erro ao cancelar:', data.msg);
           showMessage('❌ ' + (data.msg || 'Erro ao cancelar'), 'error');
         }
       })
       .catch(err => {
-        console.error('Erro:', err);
-        showMessage('Erro ao cancelar agendamento', 'error');
+        console.error('❌ Erro na requisição:', err);
+        showMessage('❌ Erro ao cancelar agendamento', 'error');
       });
   }
 
