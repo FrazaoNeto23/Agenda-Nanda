@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-$host = "localhost:3306";
+$host = "localhost:3307";
 $db = "agenda_manicure";
 $user = "root";
 $pass = ""; // ajuste se usar senha no XAMPP
