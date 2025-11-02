@@ -7,6 +7,8 @@ document.addEventListener('DOMContentLoaded', function () {
   let inputDate = document.getElementById('agenda-date');
   let inputTime = document.getElementById('agenda-time');
   let inputEndTime = document.getElementById('agenda-end-time');
+  let inputClientNotes = document.getElementById('agenda-client-notes');
+  let csrfToken = '';
 
   // Função auxiliar para mostrar mensagens
   function showMessage(message, type = 'info') {
@@ -22,8 +24,25 @@ document.addEventListener('DOMContentLoaded', function () {
     setTimeout(() => {
       toast.classList.remove('show');
       setTimeout(() => toast.remove(), 300);
-    }, 3000);
+    }, 4000);
   }
+
+  // Obter CSRF Token
+  function getCSRFToken() {
+    return fetch('get_csrf_token.php')
+      .then(res => res.json())
+      .then(data => {
+        csrfToken = data.token;
+        return csrfToken;
+      })
+      .catch(err => {
+        console.error('Erro ao obter CSRF token:', err);
+        return '';
+      });
+  }
+
+  // Carregar CSRF Token ao iniciar
+  getCSRFToken();
 
   // Carregar serviços
   if (selectService) {
@@ -35,12 +54,18 @@ document.addEventListener('DOMContentLoaded', function () {
         return res.json();
       })
       .then(data => {
-        if (data.length === 0) {
+        const activeServices = data.filter(s => s.active == 1);
+        
+        if (activeServices.length === 0) {
           selectService.innerHTML = '<option value="">Nenhum serviço disponível</option>';
-          showMessage('Nenhum serviço encontrado. Contate o administrador.', 'warning');
+          showMessage('Nenhum serviço ativo encontrado. Contate o administrador.', 'warning');
         } else {
           selectService.innerHTML = '<option value="">Selecione um serviço</option>' +
-            data.map(s => `<option value="${s.id}" data-duration="${s.duration || 60}">${s.name} - R$ ${parseFloat(s.price).toFixed(2)}</option>`).join('');
+            activeServices.map(s => 
+              `<option value="${s.id}" data-duration="${s.duration || 60}" data-price="${s.price}">
+                ${s.name} - R$ ${parseFloat(s.price).toFixed(2)} (${s.duration}min)
+              </option>`
+            ).join('');
         }
       })
       .catch(err => {
@@ -73,6 +98,34 @@ document.addEventListener('DOMContentLoaded', function () {
   if (inputDate) {
     const today = new Date().toISOString().split('T')[0];
     inputDate.setAttribute('min', today);
+    
+    // Validação adicional ao mudar
+    inputDate.addEventListener('change', function() {
+      if (this.value < today) {
+        showMessage('Não é possível agendar em datas passadas', 'warning');
+        this.value = today;
+      }
+    });
+  }
+
+  // Verificar horários ocupados ao selecionar data
+  if (inputDate && inputTime) {
+    inputDate.addEventListener('change', async function() {
+      const date = this.value;
+      if (!date) return;
+
+      try {
+        const res = await fetch(`get_busy_slots.php?date=${date}`);
+        const busySlots = await res.json();
+        
+        if (busySlots.length > 0) {
+          console.log('Horários ocupados:', busySlots);
+          // Aqui você pode desabilitar horários ou mostrar aviso
+        }
+      } catch (err) {
+        console.error('Erro ao buscar horários ocupados:', err);
+      }
+    });
   }
 
   // Verificar se FullCalendar está carregado
@@ -100,6 +153,13 @@ document.addEventListener('DOMContentLoaded', function () {
       week: 'Semana',
       day: 'Dia'
     },
+    businessHours: {
+      daysOfWeek: [1, 2, 3, 4, 5, 6], // Segunda a Sábado
+      startTime: '08:00',
+      endTime: '20:00'
+    },
+    slotMinTime: '08:00',
+    slotMaxTime: '20:00',
     events: function (fetchInfo, successCallback, failureCallback) {
       fetch('get_events.php')
         .then(res => {
@@ -118,6 +178,7 @@ document.addEventListener('DOMContentLoaded', function () {
       if (status === 'concluido') return ['event-concluido'];
       if (status === 'pendente') return ['event-pendente'];
       if (status === 'cancelado') return ['event-cancelado'];
+      if (status === 'bloqueado') return ['event-bloqueado'];
       return ['event-agendado'];
     },
     eventTimeFormat: {
@@ -156,8 +217,9 @@ document.addEventListener('DOMContentLoaded', function () {
             inputTime.value = '09:00';
             inputEndTime.value = '10:00';
 
-            // Limpar seleção de serviço
+            // Limpar seleção de serviço e notas
             if (selectService) selectService.value = '';
+            if (inputClientNotes) inputClientNotes.value = '';
 
             modal.style.display = 'block';
           }
@@ -184,46 +246,19 @@ document.addEventListener('DOMContentLoaded', function () {
             } else if (eventStatus === 'agendado') {
               // Agendamento já confirmado, pode marcar como concluído
               if (confirm(`Marcar "${eventTitle}" como concluído?`)) {
-                const formData = new URLSearchParams();
-                formData.append('id', eventId);
-                formData.append('status', 'concluido');
-
-                fetch('update_status.php', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                  body: formData.toString()
-                })
-                  .then(res => res.json())
-                  .then(data => {
-                    if (data.status === 'success') {
-                      calendar.refetchEvents();
-                      showMessage('✅ Agendamento concluído!', 'success');
-
-                      if (data.whatsapp_link) {
-                        if (confirm('Deseja enviar confirmação via WhatsApp?')) {
-                          window.open(data.whatsapp_link, '_blank');
-                        }
-                      }
-                    } else {
-                      showMessage('❌ ' + (data.msg || 'Erro ao atualizar'), 'error');
-                    }
-                  })
-                  .catch(err => {
-                    console.error('Erro:', err);
-                    showMessage('Erro ao atualizar status', 'error');
-                  });
+                atualizarStatus(eventId, 'concluido');
               }
             } else if (eventStatus === 'concluido') {
               showMessage('Este agendamento já foi concluído', 'info');
             } else if (eventStatus === 'cancelado') {
               showMessage('Este agendamento foi cancelado', 'info');
+            } else if (eventStatus === 'bloqueado') {
+              showMessage('Horário bloqueado', 'info');
             }
           } else {
             // CLIENTE: Pode visualizar e cancelar próprios agendamentos
-            if (eventStatus === 'pendente') {
-              mostrarModalClienteCancelar(eventId, eventTitle, 'pendente');
-            } else if (eventStatus === 'agendado') {
-              mostrarModalClienteCancelar(eventId, eventTitle, 'agendado');
+            if (eventStatus === 'pendente' || eventStatus === 'agendado') {
+              mostrarModalClienteCancelar(eventId, eventTitle, eventStatus);
             } else if (eventStatus === 'concluido') {
               showMessage('✅ Este agendamento foi concluído.', 'info');
             } else if (eventStatus === 'cancelado') {
@@ -257,7 +292,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Submeter agendamento
   if (formAgenda) {
-    formAgenda.addEventListener('submit', function (e) {
+    formAgenda.addEventListener('submit', async function (e) {
       e.preventDefault();
 
       // Validações
@@ -288,21 +323,34 @@ document.addEventListener('DOMContentLoaded', function () {
         return;
       }
 
+      // Obter token CSRF atualizado
+      if (!csrfToken) {
+        await getCSRFToken();
+      }
+
       // Desabilitar botão durante o envio
       const submitBtn = formAgenda.querySelector('button[type="submit"]');
       const originalText = submitBtn.textContent;
       submitBtn.disabled = true;
       submitBtn.textContent = 'Agendando...';
 
+      const formData = new URLSearchParams();
+      formData.append('service_id', selectService.value);
+      formData.append('date', inputDate.value);
+      formData.append('time', inputTime.value);
+      formData.append('end_time', inputEndTime.value);
+      formData.append('client_notes', inputClientNotes ? inputClientNotes.value : '');
+      formData.append('csrf_token', csrfToken);
+
       fetch('add_from_calendar.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: `service_id=${selectService.value}&date=${inputDate.value}&time=${inputTime.value}&end_time=${inputEndTime.value}`
+        body: formData.toString()
       })
         .then(res => res.json())
         .then(resp => {
           if (resp.status === 'success') {
-            showMessage('✅ Agendamento realizado com sucesso!', 'success');
+            showMessage('✅ ' + resp.msg, 'success');
             calendar.refetchEvents();
             modal.style.display = 'none';
             formAgenda.reset();
@@ -319,6 +367,56 @@ document.addEventListener('DOMContentLoaded', function () {
           submitBtn.textContent = originalText;
         });
     });
+  }
+
+  // ========== FUNÇÕES DE ATUALIZAÇÃO DE STATUS ==========
+  async function atualizarStatus(eventId, novoStatus, motivo = '') {
+    if (!csrfToken) {
+      await getCSRFToken();
+    }
+
+    const formData = new URLSearchParams();
+    formData.append('id', eventId);
+    formData.append('status', novoStatus);
+    formData.append('motivo', motivo);
+    formData.append('csrf_token', csrfToken);
+
+    return fetch('update_status.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: formData.toString()
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === 'success') {
+          calendar.refetchEvents();
+          
+          const mensagens = {
+            'agendado': '✅ Agendamento confirmado com sucesso!',
+            'cancelado': '❌ Agendamento cancelado',
+            'concluido': '✅ Agendamento concluído!'
+          };
+          
+          showMessage(mensagens[novoStatus] || 'Status atualizado!', 'success');
+
+          if (data.whatsapp_link) {
+            setTimeout(() => {
+              if (confirm('Deseja notificar o cliente via WhatsApp?')) {
+                window.open(data.whatsapp_link, '_blank');
+              }
+            }, 500);
+          }
+        } else {
+          showMessage('❌ ' + (data.msg || 'Erro ao atualizar'), 'error');
+        }
+        
+        return data;
+      })
+      .catch(err => {
+        console.error('Erro:', err);
+        showMessage('❌ Erro ao atualizar status', 'error');
+        throw err;
+      });
   }
 
   // ========== FUNÇÕES DE MODAL - DONO ==========
@@ -383,130 +481,23 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // ========== FUNÇÕES GLOBAIS (window) ==========
 
-  window.confirmarAgendamento = function (eventId) {
-    console.log('🔵 Confirmando agendamento ID:', eventId);
-
-    const formData = new URLSearchParams();
-    formData.append('id', eventId);
-    formData.append('status', 'agendado');
-
-    console.log('📤 Enviando dados:', formData.toString());
-
-    fetch('update_status.php', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: formData.toString()
-    })
-      .then(res => {
-        console.log('📥 Resposta recebida, status:', res.status);
-        return res.json();
-      })
-      .then(data => {
-        console.log('✅ Dados recebidos:', data);
-
-        if (data.status === 'success') {
-          calendar.refetchEvents();
-          fecharModalConfirmar();
-          showMessage('✅ Agendamento confirmado com sucesso!', 'success');
-
-          if (data.whatsapp_link) {
-            setTimeout(() => {
-              if (confirm('✅ Agendamento confirmado!\n\nDeseja enviar confirmação via WhatsApp?')) {
-                window.open(data.whatsapp_link, '_blank');
-              }
-            }, 500);
-          }
-        } else {
-          console.error('❌ Erro na resposta:', data.msg);
-          showMessage('❌ ' + (data.msg || 'Erro ao confirmar'), 'error');
-        }
-      })
-      .catch(err => {
-        console.error('❌ Erro na requisição:', err);
-        showMessage('❌ Erro ao confirmar agendamento', 'error');
-      });
+  window.confirmarAgendamento = async function (eventId) {
+    await atualizarStatus(eventId, 'agendado');
+    fecharModalConfirmar();
   }
 
-  window.recusarAgendamento = function (eventId) {
-    console.log('🔴 Recusando agendamento ID:', eventId);
-
+  window.recusarAgendamento = async function (eventId) {
     const motivoElement = document.getElementById('motivo-recusar');
     const motivo = motivoElement ? motivoElement.value.trim() : '';
-
-    const formData = new URLSearchParams();
-    formData.append('id', eventId);
-    formData.append('status', 'cancelado');
-    formData.append('motivo', motivo);
-
-    console.log('📤 Enviando recusa:', formData.toString());
-
-    fetch('update_status.php', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: formData.toString()
-    })
-      .then(res => res.json())
-      .then(data => {
-        console.log('📥 Resposta recusa:', data);
-
-        if (data.status === 'success') {
-          calendar.refetchEvents();
-          fecharModalConfirmar();
-          showMessage('❌ Agendamento recusado', 'warning');
-
-          if (data.whatsapp_link) {
-            setTimeout(() => {
-              if (confirm('Deseja notificar cliente via WhatsApp?')) {
-                window.open(data.whatsapp_link, '_blank');
-              }
-            }, 500);
-          }
-        } else {
-          console.error('❌ Erro ao recusar:', data.msg);
-          showMessage('❌ ' + (data.msg || 'Erro ao recusar'), 'error');
-        }
-      })
-      .catch(err => {
-        console.error('❌ Erro na requisição:', err);
-        showMessage('❌ Erro ao recusar agendamento', 'error');
-      });
+    await atualizarStatus(eventId, 'cancelado', motivo);
+    fecharModalConfirmar();
   }
 
-  window.cancelarMeuAgendamento = function (eventId) {
-    console.log('🟡 Cliente cancelando ID:', eventId);
-
+  window.cancelarMeuAgendamento = async function (eventId) {
     const motivoElement = document.getElementById('motivo-cancelar');
     const motivo = motivoElement ? motivoElement.value.trim() : '';
-
-    const formData = new URLSearchParams();
-    formData.append('id', eventId);
-    formData.append('status', 'cancelado');
-    formData.append('motivo', motivo);
-
-    console.log('📤 Enviando cancelamento:', formData.toString());
-
-    fetch('update_status.php', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: formData.toString()
-    })
-      .then(res => res.json())
-      .then(data => {
-        console.log('📥 Resposta cancelamento:', data);
-
-        if (data.status === 'success') {
-          calendar.refetchEvents();
-          fecharModalCancelar();
-          showMessage('✅ Agendamento cancelado com sucesso', 'success');
-        } else {
-          console.error('❌ Erro ao cancelar:', data.msg);
-          showMessage('❌ ' + (data.msg || 'Erro ao cancelar'), 'error');
-        }
-      })
-      .catch(err => {
-        console.error('❌ Erro na requisição:', err);
-        showMessage('❌ Erro ao cancelar agendamento', 'error');
-      });
+    await atualizarStatus(eventId, 'cancelado', motivo);
+    fecharModalCancelar();
   }
 
   window.fecharModalConfirmar = function () {
